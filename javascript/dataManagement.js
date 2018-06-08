@@ -1,10 +1,12 @@
 // Import data from the .json file
 
+var parseDate = d3.timeParse("%Q");
+
 function loadParks() {
   d3.json("../data/parc4.json", function(error, data) {
       return {
         name: data["name"],
-        datetime: data.datetime,
+        datetime: parseDate(data.datetime),
         Ba: +data.Ba,
         Ws: +data.Ws,
         P: +data.P,
@@ -32,4 +34,10 @@ function loadParks() {
       // Call the draw function
       data_loaded();
   })
+}
+
+function getWindTurbineData(name, parkData) {
+    return parkData.filter(function (d) {
+        return d.name == name;
+    })
 }
