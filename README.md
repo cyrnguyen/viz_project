@@ -17,6 +17,6 @@
 * Area with Missing Value :  
     https://bl.ocks.org/mbostock/3035090
 
-* Parallel Coordinates :
-	https://syntagmatic.github.io/parallel-coordinates/  
-	https://bl.ocks.org/jasondavies/1341281
+* Parallel Coordinates :  
+    https://syntagmatic.github.io/parallel-coordinates/  
+    https://bl.ocks.org/jasondavies/1341281
