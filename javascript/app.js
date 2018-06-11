@@ -1,6 +1,5 @@
-// Define framework dimensions
-// with respect to Mick Bostock's margin convention:
-// https://bl.ocks.org/mbostock/3019563
+// Define framework dimensions (with respect to Mick Bostock's margin convention)
+// reference: https://bl.ocks.org/mbostock/3019563
 
 const margin = {
   top: 80,
@@ -19,13 +18,18 @@ const cellSize = itemSize - 4;
 // Define color map
 
 const colorMap = [
-  "#007300", // strong green
-  "#4CA64C",
-  "#8BE0AE",
-  "#F6FAAA",
+  "#9E0142", // strong red
   "#FDAE61",
-  "#9E0142" // strong red
+  "#F6FAAA",
+  "#8BE0AE",
+  "#4CA64C",
+  "#007300", // strong green
 ];
+
+// Define time formats
+
+const dayFormat = d3.timeFormat('%d');
+const hourFormat = d3.timeFormat('%H');
 
 // Define transition duration
 
@@ -35,27 +39,22 @@ const transition_duration = 500;
 
 let dataset = [];
 
-// Define custom transition function
+// The function run when the data is loaded
+
+function data_loaded() {
+    draw();
+}
+
+// Define color function
 
 function renderColor() {
 
-  rect.transition()
-    .delay((d) => d.datetime * 15)
-    .duration(transition_duration)
-    .attrTween("fill", function(d, i, a) {
-      // choose color dynamically
-      var colorIndex = d3.scaleQuantize()
-        .range([0, 1, 2, 3, 4, 5])
-        .domain([0, 1]);
+  var quantizeScale = d3.scaleQuantize()
+        .domain([0, 1])
+        .range(colorMap);
 
-      return d3.interpolate(a, colorMap[colorIndex(d.index)]);
-    });
+  rect.attr("fill", (d) => quantizeScale(d.index));
 
-}
-
-// The function run when the data is loaded
-function data_loaded() {
-    draw();
 }
 
 // Define draw function
@@ -64,7 +63,7 @@ function draw() {
 
   var setIds = d3.map(dataset, (d) => d.name).keys();
 
-  var setDatetime = d3.map(dataset, (d) => moment(d.datetime, 'MMM DD hh:mm').day()).keys();
+  var setDatetime = d3.map(dataset, (d) => dayFormat(d.datetime)).keys();
 
   // Initialize svg element
 
@@ -87,7 +86,7 @@ function draw() {
     .style("opacity", 0.9)
     .attr("width", itemSize)
     .attr("height", cellSize)
-    .attr("x", (d) => itemSize * (d.datetime - 1))
+    .attr("x", (d) => itemSize * (dayFormat(d.datetime) - 1))
     .attr("y", (d) => itemSize * (setIds.indexOf(d.name)))
     .attr("fill", d3.color("white"))
     .on('mouseover', function(d) {
@@ -97,7 +96,7 @@ function draw() {
       d3.select("#tooltip")
         .style("left", d3.event.pageX + "px")
         .style("top", d3.event.pageY + "px")
-        .select("#value").text("indice : " + d.index);
+        .select("#value").text("index : " + d.index + "\nname : " + d.name + "\ndate : " + dayFormat(d.datetime));
       d3.select("#tooltip")
         .classed("hidden", false);
     })
@@ -119,18 +118,20 @@ function draw() {
     .attr("transform", "translate(" + margin.left + ", " + margin.top + ")")
     .attr("class", "label label-datetime")
     .text(function (d, i) {
-      return i < setDatetime.length ? moment(d.datetime, 'MMM DD hh:mm') : '';
+      return i < setDatetime.length ? setDatetime[i] : '';
     })
-    .attr("x", (d, i) => (i + 0.3) * itemSize)
+    .attr("x", (d, i) => ((i % setDatetime.length) + 0.3) * itemSize)
     .attr("y", -15)
-    .on('mouseenter', function(d) {
-      console.log(setDatetime.length);
-      var selected_datetime = d.datetime;
+    .on('mouseenter', function(d, i) {
+      var selected_datetime = setDatetime[i];
+
+      console.log("mouse on : ", setDatetime[i]);
+      
       heatmap.selectAll("rect")
         .transition()
         .duration(transition_duration)
         .style('opacity', function(d) {
-          return d.datetime == selected_datetime ? 1 : 0.1;
+          return dayFormat(d.datetime) == selected_datetime ? 1 : 0;
         });
     })
     .on('mouseout', function() {
@@ -155,11 +156,15 @@ function draw() {
     .attr("y", (d, i) => (i + 0.5) * itemSize)
     .on('mouseenter', function(d, i) {
       var selected_name = setIds[i];
+
+      console.log("mouse on : ", selected_name);
+      
       heatmap.selectAll("rect")
         .transition()
         .duration(transition_duration)
         .style('opacity', function(d) {
-          return d.name == selected_name ? 1 : 0.1;
+          console.log('selected_name : ' + selected_name + '/ d.name : ' + d.name);
+          return d.name == selected_name ? 1 : 0;
         });
     })
     .on('mouseout', function() {
