@@ -1,6 +1,7 @@
 // Import data from the .json file
 
 var parseDate = d3.timeParse("%Q");
+var columns = ["name", "datetime", "Ba", "Ws", "P", "Rs", "Dst", "Gost", "Rbt", "Yt", "normal", "index"];
 
 function loadParks() {
   d3.json("../data/parc4.json", function(error, data) {
@@ -40,4 +41,8 @@ function getWindTurbineData(name, parkData) {
     return parkData.filter(function (d) {
         return d.name == name;
     })
+}
+
+function getWindTurbineColumns() {
+    return columns;
 }
