@@ -39,7 +39,8 @@ function loadParks() {
 
 function getWindTurbineData(name, parkData) {
     return parkData.filter(function (d) {
-        return d.name == name;
+        //&& d.normal == 0.0
+        return d.name == name ;
     })
 }
 
