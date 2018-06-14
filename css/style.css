@@ -35,18 +35,18 @@
 }
 
 #tooltip {
-  pointer-events: none;
+  display: flex;
   position: absolute;
-  z-index: 9999;
-  width: 100px;
-  max-width: 150px;
-  overflow: hidden;
-  padding: 15px;
-  font-size: 12px;
-  line-height: 14px;
-  color: rgb(51, 51, 51);
-  font-family: Helvetica, arial, 'Open Sans', sans-serif;
-  background: rgba(255, 255, 255, 0.75);
+  width: auto;
+  height: auto;
+  padding: 10px;
+  background-color: white;
+  white-space: pre;
+  -webkit-border-radius: 10px;
+  border-radius: 10px;
+  -webkit-box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
+  box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
+  pointer-events: none;
 }
 
 #tooltip.hidden {
