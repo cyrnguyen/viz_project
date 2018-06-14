@@ -1,26 +1,104 @@
+var json = "parcs.json" 
+
 const margin = { top: 80, bottom: 80, left: 100, right: 0 };
 const width = 1500;
 const height = 1000;
+const label_padding = 40;
 const item_size = 30;
 const cell_size = item_size - 4;
 
-const color_map = [
-  "#9E0142", // strong red
-  "#FDAE61",
-  "#F6FAAA",
-  "#8BE0AE",
-  "#4CA64C",
-  "#007300", // strong green
-];
-
-const transition_duration = 500;
+const transition_duration = 500; // ms
 
 const getDateTime = d3.timeFormat('%d %B %H:%m');
 const getMonth = d3.timeFormat('%B %Y');
 const getDay = d3.timeFormat('%d');
 const getHour = d3.timeFormat('%H');
 
-var nested_index;
+const color_map = [
+  "#9E0142", // strong red
+  "#FDAE61", // orange
+  "#F6FAAA", // yellow
+  "#8BE0AE", // light green
+  "#4CA64C", // green
+  "#007300", // strong green
+];
+
+var svg = d3.select("[role='heatmap']");
+
+var heatmap = svg.attrs({width : width, height : height})
+  .append("g")
+  .attrs({width: width - margin.left - margin.right,
+          height: height - margin.top - margin.bottom})
+  .attr("transform", "translate(" + margin.left + ", " + margin.top + ")");
+
+var names_axis = svg.append("g")
+
+var button = svg.append("g")
+
+
+function drawButton() {
+
+  button.attr('class', 'button')
+    .style('opacity', 0)
+    .on('click', function () {
+      json = "parcs.json"
+      loadParks(json);
+    });
+
+  button.append("circle")
+    .attr('cx', label_padding)
+    .attr('cy', label_padding)
+    .attr('r', item_size / 2);
+
+  button.append("text")
+    .attr('x', label_padding)
+    .attr('y', label_padding - 1)
+    .attr('dy', function () {
+      return Math.floor(width / 100) / 2.5;
+    })
+    .attr('font-size', function () {
+      return Math.floor(label_padding / 3) + 'px';
+    })
+    .html('&#x2190;');
+
+  button.transition()
+    .duration(transition_duration)
+    .style('opacity', 1)
+    .style('display', function(d) { return json == "parcs.json" ? "none" : "flex"; })
+
+}
+
+
+// Define nesting function
+function indexGroupBy(time_unit) {
+
+  if (time_unit === "day")
+    f = getDay;
+  else if (time_unit === "hour")
+    f = getHour;
+
+  var nested_index = d3.nest()
+    .key((d) => f(d.datetime))
+    .key((d) => d.name)
+    .rollup(function(values) {
+      return d3.min(values, function(d) {return d.index; })
+    })
+    .map(dataset);
+
+  var nested_index_to_array = [];
+
+  Object.keys(nested_index).forEach(function(e) {
+    var that = this;
+    Object.keys(nested_index[e]).forEach(function(a) {
+      that[a] = {name: a.substr(1), datetime: +e.substr(1), index: nested_index[e][a]}
+      nested_index_to_array.push(that[a])
+    })
+  }, {})
+
+  return nested_index_to_array;
+
+}
+
 
 // Define color function
 function printColor() {
@@ -45,36 +123,14 @@ function printColor() {
 
 }
 
+
 function draw() {
-
-  var svg = d3.select("[role='heatmap']");
-
-  var heatmap = svg.attrs({width : width, height : height})
-    .append("g")
-    .attrs({width: width - margin.left - margin.right, height: height - margin.top - margin.bottom})
-    .attr("transform", "translate(" + margin.left + ", " + margin.top + ")");
 
   var set_names = d3.map(dataset, (d) => d.name).keys();
 
   var set_datetimes = d3.map(dataset, (d) => getDay(d.datetime)).keys();
 
-  nested_index = d3.nest()
-    .key((d) => getDay(d.datetime))
-    .key((d) => d.name)
-    .rollup(function(values) {
-      return d3.min(values, function(d) {return d.index; })
-    })
-    .map(dataset);
-
-  var daily_index = [];
-
-  Object.keys(nested_index).forEach(function(e) {
-    var that = this;
-    Object.keys(nested_index[e]).forEach(function(a) {
-      that[a] = {name: a.substr(1), datetime: +e.substr(1), index: nested_index[e][a]}
-      daily_index.push(that[a])
-    })
-  }, {})
+  var daily_index = indexGroupBy("day");
 
   rect = heatmap.selectAll("rect")
     .data(daily_index)
@@ -121,18 +177,10 @@ function draw() {
     .attr("y", -15)
     .on('mouseenter', function(d, i) {
       var selected_datetime = set_datetimes[i];
-
-      // for debugging :
-      // console.log("mouse on : ", set_datetimes[i]);
-      
       heatmap.selectAll("rect")
         .transition()
         .duration(transition_duration)
         .style('opacity', function(d) {
-
-          // for debugging :
-          // console.log('selected_datetime : ' + selected_datetime + ' / d.datetime : ' + getDay(d.datetime));
-
           return d.datetime == selected_datetime ? 1 : 0.1;
         });
     })
@@ -144,7 +192,9 @@ function draw() {
     })
 
   // Plot the names axis
-  svg.append("g").selectAll('.label-row')
+
+  names_axis.selectAll('.label-row').remove();
+  names_axis.selectAll('.label-row')
     .data(dataset)
     .enter()
     .append("text")
@@ -158,18 +208,10 @@ function draw() {
     .style("font-weight", "bold")
     .on('mouseenter', function(d, i) {
       var selected_name = set_names[i];
-
-      // for debugging :
-      // console.log("mouse on : ", selected_name);
-      
       heatmap.selectAll("rect")
         .transition()
         .duration(transition_duration)
         .style('opacity', function(d) {
-
-          // for debugging :
-          // console.log('selected_name : ' + selected_name + ' / d.name : ' + d.name);
-
           return d.name == selected_name ? 1 : 0.1;
         });
     })
@@ -179,13 +221,23 @@ function draw() {
         .duration(transition_duration)
         .style('opacity', 1);
     })
+    .on('click', function(d, i) {
+      var selected_parc = set_names[i];
+      json = selected_parc + ".json"
+      loadParks(json);
+    })
+
+  drawButton();
 
 }
 
+
 // The function run when the data is loaded
 function data_loaded() {
+    heatmap.selectAll("rect").remove();
+    console.log('json : ' + json);
     draw();
 }
 
 // Script executed when the script is launched
-loadParks();
+loadParks(json);
