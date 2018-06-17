@@ -16,8 +16,27 @@
 .calendar-heatmap .label {
   cursor: pointer;
   fill: rgb(120, 120, 120);
-  font-size: 14px;
   font-family: Helvetica, arial, 'Open Sans', sans-serif;
+}
+
+.calendar-heatmap .calibration {
+  margin-bottom: 900px;
+  margin-left: 30px;
+  width: 400px;
+}
+
+.calendar-heatmap .calibration .group {
+  display: inline-block;
+}
+
+.calendar-heatmap .calibration .description {
+  width: 125px;
+  font-size: 12px;
+  font-family: Helvetica, arial, 'Open Sans', sans-serif;
+}
+
+.calendar-heatmap .calibration .description>label:last-child {
+  float: right;
 }
 
 .calendar-heatmap .button {
