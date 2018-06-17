@@ -3,8 +3,22 @@
 var parseDate = d3.timeParse("%Q");
 var columns = ["name", "datetime", "Ba", "Ws", "P", "Rs", "Dst", "Gost", "Rbt", "Yt", "normal", "index"];
 
-function loadParks() {
-  d3.json("../data/parc4.json", function(error, data) {
+// d3.queue(2)
+//   .defer(d3.json, '../data/parcs.json')
+//   .defer(d3.json, '../data/parc1.json')
+//   .defer(d3.json, '../data/parc2.json')
+//   .defer(d3.json, '../data/parc3.json')
+//   .defer(d3.json, '../data/parc4.json')
+//   .await(function (error, parcs, parc1, parc2, parc3, parc4) {
+//     if (error) throw error;
+//     for (dataset in [parcs, parc1, parc2, parc3, parc4]) {
+//      dataset["datetime"] = parseDate(dataset.datetime); 
+//     })
+//     data_loaded();
+//   });
+
+function loadParks(file) {
+  d3.json("../data/"+file, function(error, data) {
       return {
         name: data["name"],
         datetime: parseDate(data.datetime),
@@ -23,7 +37,7 @@ function loadParks() {
     // Print on the browser console
     .get((error, rows) => {
       // Print the dataset length
-      console.log("Loaded " + rows.length + " rows");
+      console.log("json : " + file + " (loaded " + rows.length + " rows)");
       if (rows.length > 0) {
         // Print content of the first row
         console.log("First row: ", rows[0])
