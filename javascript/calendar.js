@@ -92,17 +92,12 @@ function drawButton() {
   button.append('circle')
     .attr('cx', label_padding)
     .attr('cy', 1.8 * label_padding)
-    .attr('r', item_size / 2);
+    .attr('r', item_size / 3);
 
   button.append('text')
     .attr('x', label_padding)
-    .attr('y', 1.8 * label_padding - 6)
-    .attr('dy', function () {
-      return Math.floor(width / 100) / 2.5;
-    })
-    .attr('font-size', function () {
-      return Math.floor(label_padding / 3) + 'px';
-    })
+    .attr('y', 1.8 * label_padding + 4)
+    .attr('font-size', '8px')
     .html('&#x2190;');
 
   button.transition()

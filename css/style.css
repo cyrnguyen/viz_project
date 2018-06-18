@@ -16,7 +16,7 @@ body {
   font-size: 34px;
   top: 20px;
   width: 1000px;
-  text-align: center;
+  text-align: right;
 }
 
 #footer {
@@ -33,10 +33,6 @@ body {
   width: 400px;
 }
 
-.calibration .group {
-  display: inline-block;
-}
-
 .calibration .description {
   width: 125px;
   font-size: 12px;
@@ -47,18 +43,15 @@ body {
 }
 
 .calendar-heatmap {
+  z-index: 1;
   display: flex;
   margin-left: 250px;
-  align-items: center;
-  justify-content: center;
+  font-weight: 300;
+  font-family: "Helvetica Neue", Helvetica;
+  text-shadow: 0 1px 0 #fff;
   -ms-user-select: none;
   -moz-user-select: none;
   -webkit-user-select: none;
-  font-weight: 300;
-  font-family: "Helvetica Neue", Helvetica;
-  z-index: 1;
-  font-weight: 300;
-  text-shadow: 0 1px 0 #fff;
 }
 
 .calendar-heatmap .timestamp {
