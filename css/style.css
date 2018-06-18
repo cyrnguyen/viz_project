@@ -25,6 +25,7 @@ body {
   left: 100px;
   text-align: right;
   font-style: italic;
+  color: rgb(70, 70, 70);
 }
 
 .calibration {
@@ -55,7 +56,7 @@ body {
 }
 
 .calendar-heatmap .timestamp {
-  font-size: 14px;
+  font-size: 18px;
 }
 
 .calendar-heatmap .label {
