@@ -9,9 +9,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
   <!-- Import d3.v4.js library -->
-  <script src="https://d3js.org/d3.v4.js" type="text/javascript" ></script>
-  <script src="https://d3js.org/d3-queue.v3.min.js" type="text/javascript" ></script>
-  <script src="https://d3js.org/d3-selection-multi.v1.min.js" type="text/javascript" ></script>
+  <!-- <script src="https://d3js.org/d3.v4.js" type="text/javascript" ></script>  -->
+  <script src="./javascript/D3/d3v4.js" type="text/javascript" ></script>
+  <!-- <script src="https://d3js.org/d3-queue.v3.min.js" type="text/javascript" ></script>  -->
+  <script src="./javascript/D3/d3-queue.js" type="text/javascript" ></script>
+  <!-- <script src="https://d3js.org/d3-selection-multi.v1.min.js" type="text/javascript" ></script>  -->
+  <script src="./javascript/D3/d3-selection-multi.js" type="text/javascript" ></script>
 
   <!-- Integrate custom CSS fonts -->
   <link rel="stylesheet" href="./css/style.css" />
@@ -24,11 +27,15 @@
 
     <div class="calibration" role="calibration" >
         <div class="group" role="example" >
-          <svg width="200" height="30" > </svg>
-          <div role="description" class="description" >
+          <div role="description1" class="description" >
             <label> Anomaly </label>
             <label> Normal </label>
-          </div>        
+          </div>
+          <div role="description2" class="description" >
+            <label>   &#x2190; </label>
+            <label> &#x2192;   </label>
+          </div>
+          <svg width="200" height="30" > </svg>
         </div>
     </div>
 
