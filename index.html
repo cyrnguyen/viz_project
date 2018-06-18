@@ -23,30 +23,33 @@
 
 <body>
 
-  <div class="calendar-heatmap">
+  <div id="body">
+    <div id="header"> windfarms health index </div>
+    <div id="footer"> click on name or datetime </div>
+  </div>
 
-    <div class="calibration" role="calibration" >
-        <div class="group" role="example" >
-          <div role="description1" class="description" >
-            <label> Anomaly </label>
-            <label> Normal </label>
-          </div>
-          <div role="description2" class="description" >
-            <label>   &#x2190; </label>
-            <label> &#x2192;   </label>
-          </div>
-          <svg width="200" height="30" > </svg>
+  <!-- Define a 'div' tag, for the color-map legend -->
+  <div class="calibration" role="calibration" >
+      <div class="group" role="example" >
+        <div role="description1" class="description" >
+          <label> Anomaly </label>
+          <label> Normal </label>
         </div>
-    </div>
+        <div role="description2" class="description" >
+          <label> &#x2190; </label>
+          <label> &#x2192; </label>
+        </div>
+        <svg width="200" height="30" > </svg>
+      </div>
+  </div>
 
+  <div class="calendar-heatmap">
     <!-- Define a 'div' tag, for the tooltips animation -->
     <div id="tooltip" class="hidden" >
       <p><span id="value" ></span></p>
     </div>
-
     <!-- heatmap -->
     <svg role="heatmap" class="heatmap" ></svg>
-    
   </div>
 
   <script type="text/javascript" src="./javascript/dataManagement.js" ></script>

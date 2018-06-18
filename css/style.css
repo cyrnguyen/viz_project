@@ -1,55 +1,84 @@
+body {
+  overflow: hidden;
+  margin: 0;
+  font-family: "Helvetica Neue", Helvetica;
+}
+
+#header, #footer {
+  position: absolute;
+  z-index: 1;
+  display: block;
+  font-weight: 300;
+  text-shadow: 0 1px 0 #fff;
+}
+
+#header {
+  font-size: 34px;
+  top: 20px;
+  width: 1000px;
+  text-align: right;
+}
+
+#footer {
+  font-size: 12px;
+  top: 100px;
+  left: 100px;
+  text-align: right;
+  font-style: italic;
+}
+
+.calibration {
+  margin-top: 30px;
+  margin-left: 100px;
+  width: 400px;
+}
+
+.calibration .group {
+  display: inline-block;
+}
+
+.calibration .description {
+  width: 125px;
+  font-size: 12px;
+}
+
+.calibration .description>label:last-child {
+  float: right;
+}
+
 .calendar-heatmap {
   display: flex;
+  margin-left: 250px;
   align-items: center;
   justify-content: center;
   -ms-user-select: none;
   -moz-user-select: none;
   -webkit-user-select: none;
+  font-weight: 300;
+  font-family: "Helvetica Neue", Helvetica;
+  z-index: 1;
+  font-weight: 300;
+  text-shadow: 0 1px 0 #fff;
 }
 
 .calendar-heatmap .timestamp {
-  fill: rgb(120, 120, 120);
   font-size: 14px;
-  font-family: Helvetica, arial, 'Open Sans', sans-serif;
 }
 
 .calendar-heatmap .label {
   cursor: pointer;
-  fill: rgb(120, 120, 120);
-  font-family: Helvetica, arial, 'Open Sans', sans-serif;
-}
-
-.calendar-heatmap .calibration {
-  margin-bottom: 900px;
-  margin-left: 30px;
-  width: 400px;
-}
-
-.calendar-heatmap .calibration .group {
-  display: inline-block;
-}
-
-.calendar-heatmap .calibration .description {
-  width: 125px;
-  font-size: 12px;
-  color: rgb(120, 120, 120);
-  font-family: Helvetica, arial, 'Open Sans', sans-serif;
-}
-
-.calendar-heatmap .calibration .description>label:last-child {
-  float: right;
 }
 
 .calendar-heatmap .button {
   cursor: pointer;
   fill: transparent;
-  stroke-width: 2;
-  stroke: rgb(170, 170, 170);
+  stroke-width: 1;
+  stroke: rgb(100, 100, 100);
 }
 .calendar-heatmap .button text {
   stroke-width: 1;
   text-anchor: middle;
-  fill: rgb(170, 170, 170);
+  fill: black;
 }
 
 .calendar-heatmap .heatmap .axis path {
@@ -74,11 +103,11 @@
   padding: 10px;
   background-color: white;
   white-space: pre;
-  -webkit-border-radius: 10px;
   border-radius: 10px;
-  -webkit-box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
   box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
   pointer-events: none;
+  -webkit-box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
+  -webkit-border-radius: 10px;
 }
 
 #tooltip.hidden {

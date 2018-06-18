@@ -1,5 +1,5 @@
 // Declare canvas parameters
-const margin = { top: 80, bottom: 80, left: 100, right: 0 };
+const margin = { top: 150, bottom: 80, left: 100, right: 0 };
 const width = 3000;
 const height = 1000;
 const label_padding = 40;
@@ -91,12 +91,12 @@ function drawButton() {
 
   button.append('circle')
     .attr('cx', label_padding)
-    .attr('cy', label_padding)
+    .attr('cy', 1.8 * label_padding)
     .attr('r', item_size / 2);
 
   button.append('text')
     .attr('x', label_padding)
-    .attr('y', label_padding - 6)
+    .attr('y', 1.8 * label_padding - 6)
     .attr('dy', function () {
       return Math.floor(width / 100) / 2.5;
     })
@@ -281,7 +281,6 @@ function draw() {
     .attr('x', (d) => - 10 * d.name.length)
     .attr('y', (d, i) => (i + 0.5) * item_size)
     .attr('class', "label label-row")
-    .style('font-weight', 'bold')
     .on('mouseenter', function(d, i) {
       var pointed_name = set_names[i];
       heatmap.selectAll('rect')
@@ -301,6 +300,13 @@ function draw() {
       selected['parc'] = set_names[i];
       json = selected['parc'] + '.json';
       loadParks(json);
+      // if (!d3.select(this).classed('selected') ){
+        //   d3.select(this).classed('selected', true)
+        //   d3.select(this).transition().attr('font-weight', 'bold');
+        // } else {
+        //   d3.select(this).classed("selected", false);
+        //   d3.select(this).transition().attr('font-weight', 'none');
+      // }
     })
 
   drawButton();
