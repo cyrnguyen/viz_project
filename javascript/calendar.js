@@ -1,7 +1,7 @@
 // Declare canvas parameters
 const margin = { top: 150, bottom: 80, left: 100, right: 0 };
 const width = 3000;
-const height = 1000;
+const height = 2000;
 const label_padding = 40;
 const item_size = 34;
 const cell_size = item_size - 4;
@@ -10,7 +10,7 @@ const cell_size = item_size - 4;
 const transition_duration = 500; // ms
 
 // Declare d3.time formats
-const getDate = d3.timeFormat('%Y%m%d');
+const getDate = d3.timeFormat('%d%H');
 const getYear = d3.timeFormat('%Y');
 const getMonth = d3.timeFormat('%B');
 const getDay = d3.timeFormat('%d');
@@ -147,7 +147,9 @@ function draw() {
   }
 
   if ('datetime' in selected) {
-    data = dataset.filter((e) => +getDay(e.datetime) == selected.datetime);
+    data = dataset.filter((e) => selected.datetime.includes(+getDay(e.datetime)));
+    console.log(selected.datetime);
+    console.log(data.length);
   } else {
     data = dataset;
   }
@@ -214,7 +216,8 @@ function draw() {
 
   // Plot the "timestamp"
   var month_timestamp = getMonth(dataset[0].datetime) + ' ' + getYear(dataset[0].datetime);
-  var day_timestamp = getMonth(dataset[0].datetime) + ' ' + selected.datetime + ', ' + getYear(dataset[0].datetime);
+  if ('datetime' in selected)
+    var day_timestamp = getMonth(dataset[0].datetime) + ' ' + selected.datetime.toString() + ', ' + getYear(dataset[0].datetime);
   timestamp.select('text').remove();
   timestamp.append('text')
     .attr('transform', 'translate(' + margin.left + ', ' + margin.top + ')')
@@ -243,7 +246,6 @@ function draw() {
       var pointed_datetime = set_datetimes[i];
       heatmap.selectAll('rect')
         .transition()
-        //.duration(transition_duration)
         .style('opacity', function(d) {
           return d.datetime == pointed_datetime ? 1 : 0.1;
         });
@@ -251,14 +253,32 @@ function draw() {
     .on('mouseout', function() {
       heatmap.selectAll('rect')
         .transition()
-        //.duration(transition_duration)
         .style('opacity', 1);
     })
     .on('click', function(d, i) {
       if (overview == 'month') {
-        selected['datetime'] = set_datetimes[i];
-        overview = 'day';
-        data_loaded();
+        // multiple selection
+        if (d3.event.shiftKey) {
+          if (!d3.select(this).classed("selected")){
+            d3.select(this).classed("selected", true)
+            d3.select(this).transition().attr('font-weight', 'bold');
+            if (!('datetime' in selected)) {
+              selected['datetime'] = [+set_datetimes[i]];
+            } else if (!(selected.datetime.includes(set_datetimes[i]))) {
+              selected['datetime'].push(+set_datetimes[i]);
+            }
+          } else {
+            d3.select(this).classed("selected", false);
+            d3.select(this).transition().attr('font-weight', 'none');
+            var idx = selected.datetime.indexOf(set_datetimes[i]);
+            selected.datetime.splice(idx, 1);
+          }
+        } else if ('datetime' in selected) {
+          if (selected.datetime.length > 0) {
+            overview = 'day';
+            data_loaded();
+          }
+        }
       }
     })
 
@@ -292,16 +312,29 @@ function draw() {
         .style('opacity', 1);
     })
     .on('click', function(d, i) {
-      selected['parc'] = set_names[i];
-      json = selected['parc'] + '.json';
-      loadParks(json);
-      // if (!d3.select(this).classed('selected') ){
-        //   d3.select(this).classed('selected', true)
-        //   d3.select(this).transition().attr('font-weight', 'bold');
-        // } else {
-        //   d3.select(this).classed("selected", false);
-        //   d3.select(this).transition().attr('font-weight', 'none');
-      // }
+
+      if (d3.event.shiftKey) {
+
+        if (!d3.select(this).classed("selected")){
+          d3.select(this).classed("selected", true)
+          d3.select(this).transition().attr('font-weight', 'bold');
+          if (!('parc' in selected)) {
+            selected['parc'] = [set_names[i]];
+          } else if (!(selected.parc.includes(set_names[i]))) {
+            selected['parc'].push(set_names[i]);
+          }
+        } else {
+          d3.select(this).classed("selected", false);
+          d3.select(this).transition().attr('font-weight', 'none');
+          var idx = selected.parc.indexOf(set_names[i]);
+          selected.parc.splice(idx, 1);
+        }
+      } else {
+        console.log(selected.parc);
+        selected['parc'] = set_names[i];
+        json = selected['parc'] + '.json';
+        loadParks(json);
+      }
     })
 
   drawButton();

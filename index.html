@@ -24,32 +24,43 @@
 <body>
 
   <div id="body">
+
     <div id="header"> wind farms health index </div>
-    <div id="footer"> click on name or datetime </div>
-  </div>
-
-  <!-- Define a 'div' tag, for the color-map legend -->
-  <div class="calibration" role="calibration" >
-      <div class="group" role="example" >
-        <div role="description1" class="description" >
-          <label> Anomaly </label>
-          <label> Normal </label>
+    
+    <div id="footer" style="top:45px"> click on names or datetimes </div>
+    <div id="footer" style="top:65px"> use *shift* + *click* to select, then *click* for filtering </div>
+    
+    <!-- Define a 'div' tag, for the color-map legend -->
+    <div class="calibration" role="calibration" >
+    
+        <div class="group" role="example" >
+    
+          <div role="description1" class="description" >
+            <label> Anomaly </label>
+            <label> Normal </label>
+          </div>
+          <div role="description2" class="description" >
+            <label> &emsp;&emsp;&#x2190; </label>
+            <label> &#x2192;&emsp;&emsp; </label>
+          </div>
+    
+          <svg width="200" height="30" > </svg>
+    
         </div>
-        <div role="description2" class="description" >
-          <label> &#x2190; </label>
-          <label> &#x2192; </label>
-        </div>
-        <svg width="200" height="30" > </svg>
-      </div>
-  </div>
-
-  <div class="calendar-heatmap">
-    <!-- Define a 'div' tag, for the tooltips animation -->
-    <div id="tooltip" class="hidden" >
-      <p><span id="value" ></span></p>
     </div>
-    <!-- heatmap -->
-    <svg role="heatmap" class="heatmap" ></svg>
+    
+    <div class="calendar-heatmap">
+    
+      <!-- Define a 'div' tag, for the tooltips animation -->
+      <div id="tooltip" class="hidden" >
+        <p><span id="value" ></span></p>
+      </div>
+    
+      <!-- heatmap -->
+      <svg role="heatmap" class="heatmap" ></svg>
+    
+    </div>
+  
   </div>
 
   <script type="text/javascript" src="./javascript/dataManagement.js" ></script>
