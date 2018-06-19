@@ -29,7 +29,7 @@ const quantizeScale = d3.scaleQuantize()
   .range(color_map);
 
 // Define record features
-let json = 'parcs.json' 
+let json = 'parcs' 
 let overview = 'month';
 let history = ['month'];
 let selected = {};
@@ -68,16 +68,16 @@ function drawButton() {
           data_loaded();
         } else {
           delete selected.parc;
-          json = 'parcs.json';
-          loadParks(json);
+          json = 'parcs';
+          loadPark(json);
         }
       }
       // calendar : filtered on a specified parc
       else if (Object.keys(selected)[0] == 'parc') {
         if (!('datetime' in selected)) {
           delete selected.parc;
-          json = 'parcs.json';
-          loadParks(json);
+          json = 'parcs';
+          loadPark(json);
         } else {
           delete selected.datetime;
           history.pop();
@@ -330,8 +330,8 @@ function draw() {
         }
       } else {
         selected['parc'] = set_names[i];
-        json = selected['parc'] + '.json';
-        loadParks(json);
+        json = selected['parc'];
+        loadPark(json);
       }
     })
 
@@ -346,4 +346,4 @@ function data_loaded() {
 }
 
 // Script executed when the script is launched
-loadParks(json);
+loadPark(json);
