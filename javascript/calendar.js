@@ -54,6 +54,8 @@ var names_axis = svg.append('g');
 var time_axis = svg.append('g');
 // Instantiate "timestamp" element
 var timestamp = svg.append('g');
+// Instantiate "position" element
+var position = svg.append('g');
 
 
 //Define draw "back button" function
@@ -214,16 +216,24 @@ function draw() {
     .attr('x', function (d, i) { return i * (cell_size - 9); })
     .attr('fill', (d) => d);
 
-  // Plot the "timestamp"
+  // Print the "timestamp"
   var month_timestamp = getMonth(dataset[0].datetime) + ' ' + getYear(dataset[0].datetime);
   if ('datetime' in selected)
     var day_timestamp = getMonth(dataset[0].datetime) + ' ' + selected.datetime.toString() + ', ' + getYear(dataset[0].datetime);
   timestamp.select('text').remove();
   timestamp.append('text')
     .attr('transform', 'translate(' + margin.left + ', ' + margin.top + ')')
-    .attr('y', 0 - (margin.top / 2))
-    .attr('class', "timestamp month")
+    .attr('y', 0 - (margin.top / 1.4))
+    .attr('class', "legend timestamp")
     .text(overview == 'month' ? month_timestamp : day_timestamp);
+
+  // Print the "position"
+  position.select('text').remove();
+  position.append('text')
+    .attr('transform', 'translate(' + margin.left + ', ' + margin.top + ')')
+    .attr('y', 0 - (margin.top / 2))
+    .attr('class', "legend position")
+    .text(('parc' in selected)? 'in ' + selected.parc.toString() : "overview");
 
   // Plot the datetime axis
   time_axis.selectAll(".label-datetime").remove();

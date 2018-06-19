@@ -50,7 +50,7 @@ body {
   -webkit-user-select: none;
 }
 
-.calendar-heatmap .timestamp {
+.calendar-heatmap .legend {
   font-size: 18px;
 }
 
