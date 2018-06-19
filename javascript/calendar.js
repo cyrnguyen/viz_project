@@ -258,11 +258,11 @@ function draw() {
     })
     .on('click', function(d, i) {
       if (overview == 'month') {
-        // multiple selection
+        // multi selection
         if (d3.event.shiftKey) {
           if (!d3.select(this).classed("selected")){
             d3.select(this).classed("selected", true)
-            d3.select(this).transition().attr('font-weight', 'bold');
+            d3.select(this).transition().attr('font-weight', 'bold').attr('fill', 'tomato');
             if (!('datetime' in selected)) {
               selected['datetime'] = [+set_datetimes[i]];
             } else if (!(selected.datetime.includes(set_datetimes[i]))) {
@@ -270,13 +270,18 @@ function draw() {
             }
           } else {
             d3.select(this).classed("selected", false);
-            d3.select(this).transition().attr('font-weight', 'none');
+            d3.select(this).transition().attr('font-weight', 'none').attr('fill', 'black');
             var idx = selected.datetime.indexOf(set_datetimes[i]);
+            // unselect datetime if double click on label
             selected.datetime.splice(idx, 1);
           }
         } else if ('datetime' in selected) {
           if (selected.datetime.length > 0) {
             overview = 'day';
+            if ('parc' in selected) {
+              json = selected['parc'].toString();
+              loadPark(json);
+            }
             data_loaded();
           }
         }
@@ -311,11 +316,11 @@ function draw() {
         .style('opacity', 1);
     })
     .on('click', function(d, i) {
-      // multi selection (click + shift)
+      // multi selection
       if (d3.event.shiftKey) {
         if (!d3.select(this).classed("selected")){
           d3.select(this).classed("selected", true)
-          d3.select(this).transition().attr('font-weight', 'bold');
+          d3.select(this).transition().attr('font-weight', 'bold').attr('fill', 'tomato');
           if (!('parc' in selected)) {
             selected['parc'] = [set_names[i]];
           } else if (!(selected.parc.includes(set_names[i]))) {
@@ -323,13 +328,14 @@ function draw() {
           }
         } else {
           d3.select(this).classed("selected", false);
-          d3.select(this).transition().attr('font-weight', 'none');
+          d3.select(this).transition().attr('font-weight', 'none').attr('fill', 'black');
           var idx = selected.parc.indexOf(set_names[i]);
           // unselect parc if double click on label
           selected.parc.splice(idx, 1);
         }
       } else {
         selected['parc'] = set_names[i];
+        if ('datetime' in selected) { overview = 'day'; }
         json = selected['parc'];
         loadPark(json);
       }

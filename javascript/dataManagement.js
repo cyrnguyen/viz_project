@@ -8,20 +8,6 @@ var parksData = new Map();
 // The data of the current park
 var dataset;
 
-// d3.queue(2)
-//   .defer(d3.json, '../data/parcs.json')
-//   .defer(d3.json, '../data/parc1.json')
-//   .defer(d3.json, '../data/parc2.json')
-//   .defer(d3.json, '../data/parc3.json')
-//   .defer(d3.json, '../data/parc4.json')
-//   .await(function (error, parcs, parc1, parc2, parc3, parc4) {
-//     if (error) throw error;
-//     for (dataset in [parcs, parc1, parc2, parc3, parc4]) {
-//      dataset["datetime"] = parseDate(dataset.datetime);
-//     })
-//     data_loaded();
-//   });
-
 function parkLoaded(name) {
   dataset = parksData.get(name)
   // Notify that data is available
