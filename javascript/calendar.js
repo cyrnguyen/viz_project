@@ -23,9 +23,11 @@ const color_map = [
   '#007300', // strong green
 ];
 
+
+
 // Define scaled color map
 const quantizeScale = d3.scaleQuantize()
-  .domain([0, 1]) // health index in interval [0, 1] 
+  .domain([0, 1]) // health index in interval [0, 1]
   .range(color_map);
 
 // Define record features
@@ -34,6 +36,22 @@ let overview = 'month';
 let history = ['month'];
 let selected = {};
 let data = {};
+
+// sliderRange
+var slider = createD3RangeSlider(1, 31, "#container", true);
+slider.onChange(function(newRange){
+    d3.select("#range-label").html(newRange.begin + " &mdash; " + newRange.end);
+});
+
+slider.onChange(function(newRange){
+   console.log(newRange);
+});
+/* Access the start and end Values in the Object .begin .end :
+slider.onChange(function(newRange){
+   var Start = newRange.begin;
+   var End = newRange.end;
+}); */
+
 
 // Instantiate SVG element
 var svg = d3.select("[role='heatmap']");
