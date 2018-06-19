@@ -2,12 +2,9 @@
 const margin = { top: 150, bottom: 80, left: 100, right: 0 };
 const width = 3000;
 const height = 2000;
-const label_padding = 40;
+const label_padding = 30;
 const item_size = 34;
 const cell_size = item_size - 4;
-
-// Declare time duration for d3.transition
-const transition_duration = 500; // ms
 
 // Declare d3.time formats
 const getDate = d3.timeFormat('%d%H');
@@ -57,7 +54,6 @@ var timestamp = svg.append('g');
 // Instantiate "position" element
 var position = svg.append('g');
 
-
 //Define draw "back button" function
 function drawButton() {
   button.attr('class', 'button')
@@ -103,7 +99,6 @@ function drawButton() {
     .html('&#x2190;');
 
   button.transition()
-    //.duration(transition_duration)
     .style('opacity', 1)
     .style('display', function(d) {
       return (json == 'parcs.json') && (overview == 'month') && (!Object.keys(selected).length) ? 'none' : 'flex';
@@ -150,8 +145,6 @@ function draw() {
 
   if ('datetime' in selected) {
     data = dataset.filter((e) => selected.datetime.includes(+getDay(e.datetime)));
-    console.log(selected.datetime);
-    console.log(data.length);
   } else {
     data = dataset;
   }
@@ -196,8 +189,6 @@ function draw() {
 
   // Print colors
   rect.transition()
-    //.delay((d) => d.datetime * 15)
-    //.duration(transition_duration)
     .attr('fill', function (d) {
       idx = d.index
       // whitesmoke color for missing values (index = 2 if NA)
@@ -310,7 +301,6 @@ function draw() {
       var pointed_name = set_names[i];
       heatmap.selectAll('rect')
         .transition()
-        //.duration(transition_duration)
         .style('opacity', function(d) {
           return d.name == pointed_name ? 1 : 0.1;
         });
@@ -318,13 +308,11 @@ function draw() {
     .on('mouseout', function() {
       heatmap.selectAll('rect')
         .transition()
-        //.duration(transition_duration)
         .style('opacity', 1);
     })
     .on('click', function(d, i) {
-
+      // multi selection (click + shift)
       if (d3.event.shiftKey) {
-
         if (!d3.select(this).classed("selected")){
           d3.select(this).classed("selected", true)
           d3.select(this).transition().attr('font-weight', 'bold');
@@ -337,10 +325,10 @@ function draw() {
           d3.select(this).classed("selected", false);
           d3.select(this).transition().attr('font-weight', 'none');
           var idx = selected.parc.indexOf(set_names[i]);
+          // unselect parc if double click on label
           selected.parc.splice(idx, 1);
         }
       } else {
-        console.log(selected.parc);
         selected['parc'] = set_names[i];
         json = selected['parc'] + '.json';
         loadParks(json);
