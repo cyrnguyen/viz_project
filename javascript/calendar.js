@@ -29,7 +29,7 @@ const quantizeScale = d3.scaleQuantize()
   .range(color_map);
 
 // Define record features
-let json = 'parcs' 
+let json = 'parcs';
 let overview = 'month';
 let history = ['month'];
 let selected = {};
@@ -69,7 +69,7 @@ function drawButton() {
         } else {
           delete selected.parc;
           json = 'parcs';
-          loadPark(json);
+          loadParks(json);
         }
       }
       // calendar : filtered on a specified parc
@@ -77,7 +77,7 @@ function drawButton() {
         if (!('datetime' in selected)) {
           delete selected.parc;
           json = 'parcs';
-          loadPark(json);
+          loadParks(json);
         } else {
           delete selected.datetime;
           history.pop();
@@ -101,7 +101,7 @@ function drawButton() {
   button.transition()
     .style('opacity', 1)
     .style('display', function(d) {
-      return (json == 'parcs.json') && (overview == 'month') && (!Object.keys(selected).length) ? 'none' : 'flex';
+      return (json == 'parcs') && (overview == 'month') && (!Object.keys(selected).length) ? 'none' : 'flex';
     })
 
 }
@@ -333,6 +333,7 @@ function draw() {
           // unselect parc if double click on label
           selected.parc.splice(idx, 1);
         }
+<<<<<<< HEAD
       } else if ('parc' in selected) {
         if (selected.parc.length > 0) {
           //selected['parc'] = set_names[i];
@@ -340,6 +341,16 @@ function draw() {
           // json = selected['parc'];
           loadPark(selected.parc);
         }
+=======
+      } else {
+        // Display the selected park only if there is no on going multiple selection
+        if (!('parc' in selected)) {
+          selected['parc'] = set_names[i];
+        }
+        if ('datetime' in selected) { overview = 'day'; }
+        json = selected['parc'];
+        loadParks(json);
+>>>>>>> 32f325cb2a4daedec78ce44cdb2d00b210ea7748
       }
     })
 
@@ -354,4 +365,8 @@ function data_loaded() {
 }
 
 // Script executed when the script is launched
+<<<<<<< HEAD
 loadPark([json]);
+=======
+loadParks(json);
+>>>>>>> 32f325cb2a4daedec78ce44cdb2d00b210ea7748
