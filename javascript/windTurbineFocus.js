@@ -259,4 +259,4 @@ function brushed() {
 
 // Script executed when the script is launched
 
-loadParks();
+loadPark('parc4');
