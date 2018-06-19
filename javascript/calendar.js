@@ -65,7 +65,7 @@ function drawButton() {
           delete selected.datetime;
           history.pop();
           overview = history[history.length - 1];
-          data_loaded();
+          parkLoaded();
         } else {
           delete selected.parc;
           json = 'parcs';
@@ -82,7 +82,7 @@ function drawButton() {
           delete selected.datetime;
           history.pop();
           overview = history[history.length - 1];
-          data_loaded();
+          parkLoaded();
         }
       }
     });
@@ -282,7 +282,7 @@ function draw() {
               json = selected['parc'].toString();
               loadPark(json);
             }
-            data_loaded();
+            parkLoaded();
           }
         }
       }
@@ -333,11 +333,13 @@ function draw() {
           // unselect parc if double click on label
           selected.parc.splice(idx, 1);
         }
-      } else {
-        selected['parc'] = set_names[i];
-        if ('datetime' in selected) { overview = 'day'; }
-        json = selected['parc'];
-        loadPark(json);
+      } else if ('parc' in selected) {
+        if (selected.parc.length > 0) {
+          //selected['parc'] = set_names[i];
+          if ('datetime' in selected) { overview = 'day'; }
+          // json = selected['parc'];
+          loadPark(selected.parc);
+        }
       }
     })
 
@@ -352,4 +354,4 @@ function data_loaded() {
 }
 
 // Script executed when the script is launched
-loadPark(json);
+loadPark([json]);
