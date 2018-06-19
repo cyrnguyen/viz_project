@@ -29,7 +29,7 @@ const quantizeScale = d3.scaleQuantize()
   .range(color_map);
 
 // Define record features
-let json = 'parcs';
+let json = ['parcs']
 let overview = 'month';
 let history = ['month'];
 let selected = {};
@@ -65,10 +65,10 @@ function drawButton() {
           delete selected.datetime;
           history.pop();
           overview = history[history.length - 1];
-          parkLoaded();
+          parkLoaded(selected.parc);
         } else {
           delete selected.parc;
-          json = 'parcs';
+          json = ['parcs'];
           loadParks(json);
         }
       }
@@ -76,13 +76,19 @@ function drawButton() {
       else if (Object.keys(selected)[0] == 'parc') {
         if (!('datetime' in selected)) {
           delete selected.parc;
-          json = 'parcs';
+          json = ['parcs'];
           loadParks(json);
         } else {
           delete selected.datetime;
           history.pop();
           overview = history[history.length - 1];
-          parkLoaded();
+          if (selected.parc.length > 1) {
+            delete selected.parc;
+            json = ['parcs'];
+            loadParks(json);
+          } else {
+            parkLoaded(selected.parc);
+          }
         }
       }
     });
@@ -101,7 +107,7 @@ function drawButton() {
   button.transition()
     .style('opacity', 1)
     .style('display', function(d) {
-      return (json == 'parcs') && (overview == 'month') && (!Object.keys(selected).length) ? 'none' : 'flex';
+      return (json == ['parcs.json']) && (overview == 'month') && (!Object.keys(selected).length) ? 'none' : 'flex';
     })
 
 }
@@ -209,8 +215,12 @@ function draw() {
 
   // Print the "timestamp"
   var month_timestamp = getMonth(dataset[0].datetime) + ' ' + getYear(dataset[0].datetime);
-  if ('datetime' in selected)
-    var day_timestamp = getMonth(dataset[0].datetime) + ' ' + selected.datetime.toString() + ', ' + getYear(dataset[0].datetime);
+  if ('datetime' in selected) {
+    if (selected.datetime.length > 1)
+      var day_timestamp = getMonth(dataset[0].datetime) + ' ' + getYear(dataset[0].datetime) + ' / days : ' + selected.datetime.sort().join(', ');
+    else
+      var day_timestamp = getMonth(dataset[0].datetime) + ' ' + selected.datetime.toString() + ', ' + getYear(dataset[0].datetime);
+  }
   timestamp.select('text').remove();
   timestamp.append('text')
     .attr('transform', 'translate(' + margin.left + ', ' + margin.top + ')')
@@ -224,7 +234,7 @@ function draw() {
     .attr('transform', 'translate(' + margin.left + ', ' + margin.top + ')')
     .attr('y', 0 - (margin.top / 2))
     .attr('class', "legend position")
-    .text(('parc' in selected)? 'in ' + selected.parc.toString() : "overview");
+    .text(('parc' in selected)? 'in ' + selected.parc.sort().join(', ') : "overview");
 
   // Plot the datetime axis
   time_axis.selectAll(".label-datetime").remove();
@@ -279,10 +289,12 @@ function draw() {
           if (selected.datetime.length > 0) {
             overview = 'day';
             if ('parc' in selected) {
-              json = selected['parc'].toString();
-              loadPark(json);
+              json = selected.parc;
+              loadParks(selected.parc);
             }
-            parkLoaded();
+            else {
+              parkLoaded(selected.parc);
+            }
           }
         }
       }
@@ -333,24 +345,12 @@ function draw() {
           // unselect parc if double click on label
           selected.parc.splice(idx, 1);
         }
-<<<<<<< HEAD
       } else if ('parc' in selected) {
         if (selected.parc.length > 0) {
-          //selected['parc'] = set_names[i];
           if ('datetime' in selected) { overview = 'day'; }
-          // json = selected['parc'];
-          loadPark(selected.parc);
+          json = selected['parc'];
+          loadParks(selected.parc);
         }
-=======
-      } else {
-        // Display the selected park only if there is no on going multiple selection
-        if (!('parc' in selected)) {
-          selected['parc'] = set_names[i];
-        }
-        if ('datetime' in selected) { overview = 'day'; }
-        json = selected['parc'];
-        loadParks(json);
->>>>>>> 32f325cb2a4daedec78ce44cdb2d00b210ea7748
       }
     })
 
@@ -365,8 +365,4 @@ function data_loaded() {
 }
 
 // Script executed when the script is launched
-<<<<<<< HEAD
-loadPark([json]);
-=======
 loadParks(json);
->>>>>>> 32f325cb2a4daedec78ce44cdb2d00b210ea7748
