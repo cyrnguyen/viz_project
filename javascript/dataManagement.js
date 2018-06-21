@@ -21,7 +21,7 @@ scatters.push(["Yt", "Dst"]);
 scatters.push(["Yt", "Rbt"]);
 
 
-function parkLoaded(names) {
+function parkLoaded(names, callback) {
   if (parksToLoad.size === 0) {
     // Create tye dataset of current data
     dataset = []
@@ -29,12 +29,12 @@ function parkLoaded(names) {
       dataset = dataset.concat(parksData.get(name));
     }
     // Notify that data is available
-    data_loaded();
+    callback();
   }
 }
 
 // Load a park data if data have not been loaded before
-function loadParks(names) {
+function loadParks(names, callback) {
   let myNames = [];
   if (typeof names === 'string') {
     myNames = [names];
@@ -75,11 +75,11 @@ function loadParks(names) {
           parksData.set(name, rows);
           // Notify that JSON has been loaded
           parksToLoad.delete(name);
-          parkLoaded(myNames);
+          parkLoaded(myNames, callback);
       });
     } else {
       parksToLoad.delete(name);
-      parkLoaded(myNames);
+      parkLoaded(myNames, callback);
     }
   }
 }

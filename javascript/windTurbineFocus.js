@@ -2,22 +2,21 @@ const w = 1500;
 const healthCurveH = 200;
 const paraCoordGraphH = 600;
 const scatterGraphH = 300;
-const margin = {top: 50, right: 30, bottom: 50, left: 80};
-const scatterGraphW = (w - 3 * (margin.left + margin.right)) / 3
-const scattersGraphH = scatterGraphH + margin.bottom + margin.top + scatterGraphH;
-const h = margin.top + healthCurveH + margin.bottom + margin.top + paraCoordGraphH + margin.bottom + margin.top + scattersGraphH + margin.bottom;
+const focusMargin = {top: 50, right: 30, bottom: 50, left: 80};
+const scatterGraphW = (w - 3 * (focusMargin.left + focusMargin.right)) / 3
+const scattersGraphH = scatterGraphH + focusMargin.bottom + focusMargin.top + scatterGraphH;
+const h = focusMargin.top + healthCurveH + focusMargin.bottom + focusMargin.top + paraCoordGraphH + focusMargin.bottom + focusMargin.top + scattersGraphH + focusMargin.bottom;
 
-var diagramsW = w - margin.left - margin.right;
+var diagramsW = w - focusMargin.left - focusMargin.right;
 
 // Data
-var dataset = [];
+// var dataset = [];
 var windTurbineData = [];
 
-// global SVG
-var svg = d3.select("body")
-            .append("svg")
-                .attr("width", w)
-                .attr("height", h);
+// global focusSVG
+var focusSvg = d3.select("[role='focus']")
+            .attr("width", w)
+            .attr("height", h);
 
 // Define health curve
 var healthCurveX = d3.scaleTime().range([0, diagramsW]),
@@ -33,21 +32,26 @@ var area = d3.area()
     .y0(healthCurveH)
     .y1(function(d) { return healthCurveY(d.index); });
 
-svg.append("defs").append("clipPath")
+focusSvg.append("defs").append("clipPath")
     .attr("id", "clip")
   .append("rect")
     .attr("width", diagramsW)
     .attr("height", healthCurveH);
 
-var health_curve = svg.append("g")
-    .attr("class", "health_curve")
-    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+var health_curve = focusSvg.append("g");
 
 var brush = d3.brushX()
     .extent([[0, 0], [diagramsW, healthCurveH]])
     .on("brush end", brushed);
 
+function initHealthCurve() {
+  health_curve.selectAll("*").remove();
+  health_curve.attr("class", "health_curve")
+    .attr("transform", "translate(" + focusMargin.left + "," + focusMargin.top + ")");
+}
+
 function draw_health_curve() {
+    initHealthCurve();
     healthCurveX.domain(d3.extent(windTurbineData, function(d) { return d.datetime; }));
     healthCurveY.domain([0, 1]);
 
@@ -83,9 +87,7 @@ var paraCoordLine = d3.line(),
     paraCoordBackground,
     paraCoordForeground;
 
-var paraCoordGraph = svg.append("g")
-    .attr("class", "paraCoord")
-    .attr("transform", "translate(" + margin.left + "," + (2 * margin.top + healthCurveH + margin.bottom) + ")");
+var paraCoordGraph = focusSvg.append("g");
 
 function createParaCoordScaleAndAxis(d) {
     if (d == "datetime") {
@@ -102,9 +104,14 @@ function createParaCoordScaleAndAxis(d) {
     }
 }
 
-var brushYtmp = d3.brushY()
+function initParaCoordGraph() {
+  paraCoordGraph.selectAll("*").remove();
+  paraCoordGraph.attr("class", "paraCoord")
+    .attr("transform", "translate(" + focusMargin.left + "," + (2 * focusMargin.top + healthCurveH + focusMargin.bottom) + ")");
+}
 
 function drawParaCoordGraph() {
+    initParaCoordGraph();
     dimensions = getWindTurbineColumns().filter(
         function(d) {
             return d != "name" && d != "normal" && d != "index"
@@ -148,9 +155,9 @@ function drawParaCoordGraph() {
           .on("drag", function(d) {
             dragging[d] = Math.min(diagramsW, Math.max(0, d3.event.x));
             foreground.attr("d", path);
-            dimensions.sort(function(a, b) { return position(a) - position(b); });
+            dimensions.sort(function(a, b) { return paraCoordPosition(a) - paraCoordPosition(b); });
             paraCoordX.domain(dimensions);
-            g.attr("transform", function(d) { return "translate(" + position(d) + ")"; })
+            g.attr("transform", function(d) { return "translate(" + paraCoordPosition(d) + ")"; })
           })
           .on("end", function(d) {
             delete dragging[d];
@@ -201,7 +208,7 @@ function drawParaCoordGraph() {
     // }
 }
 
-function position(d) {
+function paraCoordPosition(d) {
   var v = dragging[d];
   return v == null ? paraCoordX(d) : v;
 }
@@ -212,7 +219,7 @@ function transition(g) {
 
 // Returns the path for a given data point.
 function path(d) {
-  return paraCoordLine(dimensions.map(function(p) { return [position(p), paraCoordY[p](d[p])]; }));
+  return paraCoordLine(dimensions.map(function(p) { return [paraCoordPosition(p), paraCoordY[p](d[p])]; }));
 }
 
 function brushstart() {
@@ -234,12 +241,17 @@ function brush() {
 
 
 // Scatters plots
-var scatterTranslateH = margin.top + healthCurveH + margin.bottom + margin.top + paraCoordGraphH + margin.bottom;
-var scatterGraph = svg.append("g")
-    .attr("class", "scatters")
+var scatterTranslateH = focusMargin.top + healthCurveH + focusMargin.bottom + focusMargin.top + paraCoordGraphH + focusMargin.bottom;
+var scatterGraph = focusSvg.append("g");
+
+function initScatters() {
+  scatterGraph.selectAll("*").remove();
+  scatterGraph.attr("class", "scatters")
     .attr("transform", "translate(0" + "," + scatterTranslateH + ")");
+}
 
 function draw_scatters() {
+  initScatters();
   let anormalData = getAnormalData(windTurbineData);
   col = 0;
   row = 0;
@@ -262,8 +274,8 @@ function draw_scatter(data, xCol, yCol, element, row, col, anormalData) {
   let xAxis = d3.axisBottom(x),
       yAxis = d3.axisLeft(y);
 
-  let leftTranslate = margin.left + col * (margin.left + margin.right + scatterGraphW);
-  let topTranslate = margin.top + row * (margin.top + margin.bottom + scatterGraphH);
+  let leftTranslate = focusMargin.left + col * (focusMargin.left + focusMargin.right + scatterGraphW);
+  let topTranslate = focusMargin.top + row * (focusMargin.top + focusMargin.bottom + scatterGraphH);
   g = element.append("g")
     .attr("transform", "translate(" + leftTranslate + "," + topTranslate + ")");
 
@@ -313,14 +325,14 @@ function draw_scatter(data, xCol, yCol, element, row, col, anormalData) {
 
 
 
-function data_loaded() {
-    windTurbineData = getWindTurbineData("R80790-10", dataset);
+function focus_data_loaded(turbineName) {
+    windTurbineData = getWindTurbineData(turbineName, dataset);
     for (let i = 0; i < 10; i++) {
         console.log(windTurbineData[i]);
     }
     draw_health_curve()
     drawParaCoordGraph()
-    svg.selectAll(".tick text")
+    focusSvg.selectAll(".tick text")
       .call(wrap, 8);
     draw_scatters();
 }
@@ -355,13 +367,31 @@ function brushed() {
   // x.domain(s.map(x2.invert, x2));
   // focus.select(".area").attr("d", area);
   // focus.select(".axis--x").call(healthCurveXAxis);
-  // svg.select(".zoom").call(zoom.transform, d3.zoomIdentity
+  // focusSvg.select(".zoom").call(zoom.transform, d3.zoomIdentity
   //     .scale(width / (s[1] - s[0]))
   //     .translate(-s[0], 0));
     console.log("brushing")
 }
 
+function toggleFocus() {
+
+    // Set the effect type
+    var effect = 'slide';
+
+    // Set the options for the effect type chosen
+    var options = { direction: "right" };
+
+    // Set the duration (default: 400 milliseconds)
+    var duration = 5000;
+
+    // $('#focus').toggle(effect, options, duration);
+    $('#focus').toggleClass('close');
+}
+
+$("#close_button").click(function () {
+  toggleFocus();
+});
 
 // Script executed when the script is launched
 
-loadParks('parc4');
+// loadParks('parc4', focus_data_loaded);

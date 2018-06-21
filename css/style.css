@@ -147,7 +147,7 @@ body {
 }
 
 /*.brush .selection {
-  fill-opacity: .3;
+  fill-opa  city: .3;
   stroke: #fff;
   shape-rendering: crispEdges;
 }
@@ -155,3 +155,29 @@ body {
 .brush .selection,.brush .handle {
   width: 16px;
 }*/
+
+#focus {
+  position: absolute;
+  /*width: 100vw;*/
+  /*height: 100vh;*/
+  overflow: hidden;
+  top: 80px;
+  left: 80px;
+  z-index: 5;
+  transition: height 0.5s, top 0.5s;
+  background-color: white;
+}
+
+#focus.close {
+  top: 100vh;
+  height: 0;
+}
+
+#close_button {
+  float:right;
+  display:inline-block;
+  padding:5px 5px;
+  font-family: sans-serif;
+  font-size: 50px;
+  cursor:pointer;
+}

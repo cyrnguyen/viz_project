@@ -69,7 +69,7 @@ function drawButton() {
         } else {
           delete selected.parc;
           json = ['parcs'];
-          loadParks(json);
+          loadParks(json, data_loaded);
         }
       }
       // calendar : filtered on a specified parc
@@ -77,7 +77,7 @@ function drawButton() {
         if (!('datetime' in selected)) {
           delete selected.parc;
           json = ['parcs'];
-          loadParks(json);
+          loadParks(json, data_loaded);
         } else {
           delete selected.datetime;
           history.pop();
@@ -85,7 +85,7 @@ function drawButton() {
           if (selected.parc.length > 1) {
             delete selected.parc;
             json = ['parcs'];
-            loadParks(json);
+            loadParks(json, data_loaded);
           } else {
             parkLoaded(selected.parc);
           }
@@ -348,7 +348,7 @@ function draw() {
             overview = 'day';
             if ('parc' in selected) {
               json = selected.parc;
-              loadParks(json);
+              loadParks(json, data_loaded);
             }
             else {
               parkLoaded(json);
@@ -403,11 +403,14 @@ function draw() {
           // unselect parc if double click on label
           selected.parc.splice(idx, 1);
         }
-      } else if ('parc' in selected) {
-        if (selected.parc.length > 0) {
+      } else {
+        if (!set_names[i].startsWith("parc")) {
+          focus_data_loaded(set_names[i]);
+          toggleFocus();
+        } else if ('parc' in selected && selected.parc.length > 0) {
           if ('datetime' in selected) { overview = 'day'; }
           json = selected['parc'];
-          loadParks(selected.parc);
+          loadParks(selected.parc, data_loaded);
         }
       }
     })
@@ -423,4 +426,4 @@ function data_loaded() {
 }
 
 // Script executed when the script is launched
-loadParks(json);
+loadParks(json, data_loaded);
