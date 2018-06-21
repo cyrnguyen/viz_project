@@ -23,8 +23,6 @@ const color_map = [
   '#007300', // strong green
 ];
 
-
-
 // Define scaled color map
 const quantizeScale = d3.scaleQuantize()
   .domain([0, 1]) // health index in interval [0, 1]
@@ -37,29 +35,12 @@ let history = ['month'];
 let selected = {};
 let data = {};
 
-// sliderRange
-var slider = createD3RangeSlider(1, 31, "#container", true);
-slider.onChange(function(newRange){
-    d3.select("#range-label").html(newRange.begin + " &mdash; " + newRange.end);
-});
-
-slider.onChange(function(newRange){
-   console.log(newRange);
-});
-/* Access the start and end Values in the Object .begin .end :
-slider.onChange(function(newRange){
-   var Start = newRange.begin;
-   var End = newRange.end;
-}); */
-
-
 // Instantiate SVG element
 var svg = d3.select("[role='heatmap']");
 // Instantiate "heatmap calendar" element
 var heatmap = svg.attrs({width : width, height : height})
   .append('g')
-  .attrs({width: width - margin.left - margin.right,
-          height: height - margin.top - margin.bottom})
+  .attrs({width: width - margin.left - margin.right, height: height - margin.top - margin.bottom})
   .attr('transform', 'translate(' + margin.left + ', ' + margin.top + ')');
 // Instantiate "back button" element
 var button = svg.append('g');
@@ -83,7 +64,8 @@ function drawButton() {
           delete selected.datetime;
           history.pop();
           overview = history[history.length - 1];
-          parkLoaded(selected.parc);
+          json = ['parcs'];
+          parkLoaded(json);
         } else {
           delete selected.parc;
           json = ['parcs'];
@@ -125,7 +107,7 @@ function drawButton() {
   button.transition()
     .style('opacity', 1)
     .style('display', function(d) {
-      return (json == ['parcs.json']) && (overview == 'month') && (!Object.keys(selected).length) ? 'none' : 'flex';
+      return (json[0] == 'parcs') && (overview == 'month') && (!Object.keys(selected).length) ? 'none' : 'flex';
     })
 
 }
@@ -136,7 +118,7 @@ function indexGroupBy(time_unit) {
   if (overview == 'month')
     f = getDay;
   else if (overview == 'day')
-    f = getHour;
+    f = getDate;
 
   var nested_index = d3.nest()
     .key((d) => f(d.datetime))
@@ -150,7 +132,7 @@ function indexGroupBy(time_unit) {
 
   Object.keys(nested_index).forEach(function(e) {
     var that = this;
-    Object.keys(nested_index[e]).forEach(function(a) {
+    Object.keys(nested_index[e]).forEach(function(a) {;
       that[a] = {name: a.substr(1), datetime: +e.substr(1), index: nested_index[e][a]}
       nested_index_to_array.push(that[a])
     })
@@ -184,12 +166,37 @@ function draw() {
   var set_datetimes = d3.map(nested_index, (d) => d.datetime).keys()
     .sort(function (x, y) { return d3.ascending(+x, +y); })
 
+  // set_datetimes_to_array = [] ;
+
+  // if (overview == 'day') {
+  //   set_datetimes.forEach(function(e) {
+  //     set_datetimes_to_array.push(e.length == 4 ? +e.substr(2) : +e.substr(1));
+  //   });
+  // }
+
+  // // Define slider
+  // var min_datetimes = set_datetimes[0];
+  // var max_datetimes = set_datetimes[set_datetimes.length - 1];
+  // var slider = createD3RangeSlider(min_datetimes, max_datetimes, "#container");
+
+  // // Access the start and end values of the slider
+  // slider.onChange(function(newRange){
+  //   var start_range = newRange.begin;
+  //   var end_range = newRange.end;
+  // });
+
   rect = heatmap.selectAll('rect')
     .data(nested_index)
     .enter()
     .append('rect')
     .attrs({width: item_size, height: cell_size})
-    .attr('x', (d) => overview == 'month' ? item_size * (d.datetime - 1) : item_size * d.datetime)
+    .attr('x', function (d, i) {
+      if (overview == 'month'){
+        return item_size * (d.datetime - 1);
+      } else {
+        return item_size * set_datetimes.indexOf(d.datetime.toString());
+      }
+    })
     .attr('y', (d) => item_size * (set_names.indexOf(d.name)))
     .attr('fill', d3.color('white'))
     .on('mouseover', function(d, i) {
@@ -198,10 +205,18 @@ function draw() {
         .style('top', d3.event.pageY + 'px')
         .select("#value")
         .text(function () {
-          if (overview == 'month')
-            return d.name + ', on ' + getMonth(data[0].datetime) + ' ' + d.datetime + '\nindex : ' + d.index.toFixed(3)
-          else if (overview == 'day')
-            return d.name + ', on ' + getMonth(data[0].datetime) + ' ' + selected.datetime + ' at ' + d.datetime + ':00\nindex : ' + d.index.toFixed(3)
+          if (overview == 'month'){
+            text_month = getMonth(data[0].datetime);
+            text_day = d.datetime;
+            text_index = d.index.toFixed(3)
+            return d.name + ', on ' + text_month + ' ' + text_day + '\nindex : ' + text_index;
+          } else if (overview == 'day') {
+            text_month = getMonth(data[0].datetime);
+            text_days = selected.datetime.toString();
+            text_hour = d.datetime.toString().slice(-2) + ':00';
+            text_index = d.index.toFixed(3)
+            return d.name + ', on ' + text_month + ' ' + text_days + ' at ' + text_hour + '\nindex : ' + text_index;
+          }
         });
       d3.select("#tooltip")
         .classed("hidden", false);
@@ -265,8 +280,12 @@ function draw() {
     .text(function (d, i) {
       if (overview == 'month')
         return set_datetimes[i];
-      else if (overview == 'day')
-        return i < set_datetimes.length ? set_datetimes[i] + ':00' : '';
+      else if (overview == 'day') {
+        if (i < set_datetimes.length) {
+          var label_hours = set_datetimes[i].length == 4 ? set_datetimes[i].substr(2) : set_datetimes[i].substr(1);
+          return label_hours + ':00'
+        }
+      }
     })
     .style('font-size', (overview == 'month') ? '12px' : '10px')
     .attr('x', (d, i) => (overview == 'month') ? (i + 0.3) * item_size : (i + 0.2) * item_size)
@@ -308,10 +327,10 @@ function draw() {
             overview = 'day';
             if ('parc' in selected) {
               json = selected.parc;
-              loadParks(selected.parc);
+              loadParks(json);
             }
             else {
-              parkLoaded(selected.parc);
+              parkLoaded(json);
             }
           }
         }
