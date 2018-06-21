@@ -100,7 +100,7 @@ function drawButton() {
 
   button.append('text')
     .attr('x', label_padding)
-    .attr('y', 1.8 * label_padding + 4)
+    .attr('y', 1.8 * label_padding + 3)
     .attr('font-size', '8px')
     .html('&#x2190;');
 
@@ -166,16 +166,36 @@ function draw() {
   var set_datetimes = d3.map(nested_index, (d) => d.datetime).keys()
     .sort(function (x, y) { return d3.ascending(+x, +y); })
 
+  // Order datetime values in selected array, once selection done
+  if (overview == 'day') {
+    if (selected.datetime.length > 1)
+      selected.datetime = selected.datetime.sort(function (x, y) { return d3.ascending(+x, +y); });
+  }
+
   rect = heatmap.selectAll('rect')
     .data(nested_index)
     .enter()
     .append('rect')
-    .attrs({width: item_size, height: cell_size})
+    .attr('width', function() {
+      if (overview == 'month') {
+        return item_size;
+      } else if (overview == 'day') {
+        if (selected.datetime.length > 1)
+          return 1.87 * item_size / selected.datetime.length;
+        else
+          return item_size;
+      }
+    })
+    .attr('height', cell_size)
     .attr('x', function (d, i) {
       if (overview == 'month'){
         return item_size * (d.datetime - 1);
       } else {
-        return item_size * set_datetimes.indexOf(d.datetime.toString());
+        if (selected.datetime.length > 1) {
+          return 45 * item_size * set_datetimes.indexOf(d.datetime.toString()) / set_datetimes.length;
+        } else {
+          return item_size * set_datetimes.indexOf(d.datetime.toString());
+        }
       }
     })
     .attr('y', (d) => item_size * (set_names.indexOf(d.name)))
@@ -235,7 +255,7 @@ function draw() {
   var month_timestamp = getMonth(dataset[0].datetime) + ' ' + getYear(dataset[0].datetime);
   if ('datetime' in selected) {
     if (selected.datetime.length > 1)
-      var day_timestamp = getMonth(dataset[0].datetime) + ' ' + getYear(dataset[0].datetime) + ' / days : ' + selected.datetime.sort().join(', ');
+      var day_timestamp = getMonth(dataset[0].datetime) + ' ' + getYear(dataset[0].datetime) + ' / days : ' + selected.datetime.join(', ');
     else
       var day_timestamp = getMonth(dataset[0].datetime) + ' ' + selected.datetime.toString() + ', ' + getYear(dataset[0].datetime);
   }
@@ -255,6 +275,7 @@ function draw() {
     .text(('parc' in selected)? 'in ' + selected.parc.sort().join(', ') : "overview");
 
   // Plot the datetime axis
+  console.log('data length : ', data.length);
   time_axis.selectAll(".label-datetime").remove();
   time_axis.selectAll(".label-datetime")
     .data(data)
@@ -266,21 +287,35 @@ function draw() {
       if (overview == 'month')
         return set_datetimes[i];
       else if (overview == 'day') {
-        if (i < set_datetimes.length) {
-          // if set_datetimes = 'ddhh' then hour = substr(2), else if set_datetimes = 'dhh' then hour = substr(1)
-          var label_hours = set_datetimes[i].length == 4 ? set_datetimes[i].substr(2) : set_datetimes[i].substr(1);
-          return label_hours + ':00'
+        if (selected.datetime.length < 2) {
+          if (i < set_datetimes.length) {
+            // if set_datetimes = 'ddhh' then hour = substr(2), else if set_datetimes = 'dhh' then hour = substr(1)
+            var label_hours = set_datetimes[i].length == 4 ? set_datetimes[i].substr(2) : set_datetimes[i].substr(1);
+            return label_hours + ':00'
+          }
+        } else {
+          // if (i % (set_names.length * set_datetimes.length * 2) == 0) {
+          if ((+getHour(d.datetime) == 0) && (i % (set_names.length * set_datetimes.length * 12) == 0)) {
+            console.log(getDay(d.datetime));
+            return getMonth(d.datetime) + ' ' + getDay(d.datetime);
+          }
+          else
+            return '';
         }
       }
     })
-    .style('font-size', (overview == 'month') ? '12px' : '10px')
-    .attr('x', (d, i) => (overview == 'month') ? (i + 0.3) * item_size : (i + 0.2) * item_size)
+    .style('font-size', (overview == 'month') ? '12px' : (selected.datetime.length == 1) ? '10px' : '12px')
+    .attr('x', (d, i) => (overview == 'month') ? (i + 0.3) * item_size : (i + 0.2) * item_size / selected.datetime.length)
     .attr('y', -12)
     .on('mouseenter', function(d, i) {
       var pointed_datetime = set_datetimes[i];
       heatmap.selectAll('rect')
         .transition()
         .style('opacity', function(d) {
+          if (overview == 'day') {
+            if (selected.datetime.length > 1)
+              return 1;
+          }
           return d.datetime == pointed_datetime ? 1 : 0.1;
         });
     })
