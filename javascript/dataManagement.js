@@ -11,6 +11,16 @@ var dataset;
 // temp variable to check which parks have been loaded
 var parksToLoad;
 
+// Init the list of scatter plots to display
+var scatters = [];
+scatters.push(["Ws", "P"]);
+scatters.push(["Ws", "Rs"]);
+scatters.push(["Ws", "Ba"]);
+scatters.push(["Rs", "P"]);
+scatters.push(["Yt", "Dst"]);
+scatters.push(["Yt", "Rbt"]);
+
+
 function parkLoaded(names) {
   if (parksToLoad.size === 0) {
     // Create tye dataset of current data
@@ -76,11 +86,21 @@ function loadParks(names) {
 
 function getWindTurbineData(name, parkData) {
     return parkData.filter(function (d) {
-        //&& d.normal == 0.0
-        return d.name == name ;
+        // && d.normal == 0.0
+        return d.name == name;
+    })
+}
+
+function getAnormalData(data) {
+    return data.filter(function (d) {
+        return d.normal == 0.0;
     })
 }
 
 function getWindTurbineColumns() {
-    return columns;
+  return columns;
+}
+
+function getScattersToDisplay() {
+  return scatters;
 }

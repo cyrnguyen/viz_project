@@ -1,7 +1,11 @@
 const w = 1500;
-const h = 900;
 const healthCurveH = 200;
-const margin = {top: 30, right: 30, bottom: 30, left: 80};
+const paraCoordGraphH = 600;
+const scatterGraphH = 300;
+const margin = {top: 50, right: 30, bottom: 50, left: 80};
+const scatterGraphW = (w - 3 * (margin.left + margin.right)) / 3
+const scattersGraphH = scatterGraphH + margin.bottom + margin.top + scatterGraphH;
+const h = margin.top + healthCurveH + margin.bottom + margin.top + paraCoordGraphH + margin.bottom + margin.top + scattersGraphH + margin.bottom;
 
 var diagramsW = w - margin.left - margin.right;
 
@@ -19,7 +23,7 @@ var svg = d3.select("body")
 var healthCurveX = d3.scaleTime().range([0, diagramsW]),
     healthCurveY = d3.scaleLinear().range([healthCurveH, 0]);
 var healthCurveXAxis = d3.axisBottom(healthCurveX)
-    .tickFormat(d3.timeFormat("%Y %m-%d"));
+    .tickFormat(d3.timeFormat("%Y %m-%d")),
     healthCurveYAxis = d3.axisLeft(healthCurveY);
 
 var area = d3.area()
@@ -68,9 +72,8 @@ function draw_health_curve() {
       .call(brush.move, healthCurveX.range());
 }
 
-// Define parallel coordinates
-const paraCoordGraphH = 600;
 
+// Define parallel coordinates
 var paraCoordX = d3.scalePoint().range([0, diagramsW]),
     dragging = {};
 let paraCoordY = {},
@@ -98,6 +101,8 @@ function createParaCoordScaleAndAxis(d) {
         paraCoordAxis[d] = d3.axisLeft();
     }
 }
+
+var brushYtmp = d3.brushY()
 
 function drawParaCoordGraph() {
     dimensions = getWindTurbineColumns().filter(
@@ -170,14 +175,30 @@ function drawParaCoordGraph() {
         .text(function(d) { return d; });
 
     // Add and store a brush for each axis.
-    g.append("g")
-      .attr("class", "brush")
-      .each(function(d) {
-        d3.select(this).call(paraCoordY[d].brush = d3.brushY().on("brush start", brushstart).on("brush", brush));
-      })
-    .selectAll("rect")
-      .attr("x", -8)
-      .attr("width", 16);
+    // g.append("g")
+    //   .attr("class", "brush")
+    //   .each(function(d) {
+    //     d3.select(this).call(brushYtmp.extent([[0, 0], [16, paraCoordGraphH]]).on("start", brushstart).on("brush end", brush))
+    //   })
+
+    // g.each(function(d) {
+    //   d3.select(this).append("g")
+    //   .attr("class", "brush")
+    //   .call(d3.brushY().extent([[0, 0], [16, paraCoordGraphH]]).on("end", brush).on("start", brushstart)); //    paraCoordY[d].brush = 
+    //   });
+    // .selectAll("rect")
+    //   .attr("x", -8)
+    //   .attr("width", 16)
+
+    // g.append("g")
+    //   .attr("class", "brush")
+    //   .call(d3.brushY().extent([[0, 0], [16, paraCoordGraphH]]).on("end", brush).on("start", brushstart));
+
+    // for (let group of g._groups) {
+    //   group.append("g")
+    //     .attr("class", "brush")
+    //     .call(d3.brushY().extent([[0, 0], [16, paraCoordGraphH]]).on("end", brush).on("start", brushstart));
+    // }
 }
 
 function position(d) {
@@ -195,11 +216,13 @@ function path(d) {
 }
 
 function brushstart() {
+  console.log("Brushing paraCoord start");
   d3.event.sourceEvent.stopPropagation();
 }
 
 // Handles a brush event, toggling the display of foreground lines.
 function brush() {
+  console.log("Brushing paraCoord")
   var actives = dimensions.filter(function(p) { return !paraCoordY[p].brush.empty(); }),
       extents = actives.map(function(p) { return paraCoordY[p].brush.extent(); });
   foreground.style("display", function(d) {
@@ -208,6 +231,87 @@ function brush() {
     }) ? null : "none";
   });
 }
+
+
+// Scatters plots
+var scatterTranslateH = margin.top + healthCurveH + margin.bottom + margin.top + paraCoordGraphH + margin.bottom;
+var scatterGraph = svg.append("g")
+    .attr("class", "scatters")
+    .attr("transform", "translate(0" + "," + scatterTranslateH + ")");
+
+function draw_scatters() {
+  let anormalData = getAnormalData(windTurbineData);
+  col = 0;
+  row = 0;
+  for (let row = 0; row < 2; row ++) {
+    for (let col = 0; col < 3; col ++) {
+      let index = col + 3 * row;
+      draw_scatter(windTurbineData, getScattersToDisplay()[index][0], getScattersToDisplay()[index][1], scatterGraph, row, col, anormalData);
+    }
+  }
+}
+
+function draw_scatter(data, xCol, yCol, element, row, col, anormalData) {
+  let x = d3.scaleLinear()
+    .range([0, scatterGraphW]);
+  let y = d3.scaleLinear()
+    .range([scatterGraphH, 0]);
+  x.domain(d3.extent(data, function(d) { return d[xCol]; })).nice();
+  y.domain(d3.extent(data, function(d) { return d[yCol]; })).nice();
+
+  let xAxis = d3.axisBottom(x),
+      yAxis = d3.axisLeft(y);
+
+  let leftTranslate = margin.left + col * (margin.left + margin.right + scatterGraphW);
+  let topTranslate = margin.top + row * (margin.top + margin.bottom + scatterGraphH);
+  g = element.append("g")
+    .attr("transform", "translate(" + leftTranslate + "," + topTranslate + ")");
+
+  g.append("g")
+      .attr("class", "x axis")
+      .attr("transform", "translate(0," + scatterGraphH + ")")
+      .call(xAxis)
+    .append("text")
+      .attr("class", "label")
+      .attr("x", scatterGraphW)
+      .attr("y", -6)
+      .style("text-anchor", "end")
+      .text(xCol);
+
+  g.append("g")
+      .attr("class", "y axis")
+      .call(yAxis)
+    .append("text")
+      .attr("class", "label")
+      .attr("transform", "rotate(-90)")
+      .attr("y", 6)
+      .attr("dy", ".71em")
+      .style("text-anchor", "end")
+      .text(yCol);
+
+  g.selectAll(".dot")
+      .data(data)
+    .enter().append("circle")
+      .attr("class", "dot normal")
+      .attr("r", 2)
+      .attr("cx", function(d) { return x(d[xCol]); })
+      .attr("cy", function(d) { return y(d[yCol]); })
+      .style("fill", "steelblue");
+
+  g1 = element.append("g")
+    .attr("transform", "translate(" + leftTranslate + "," + topTranslate + ")");
+
+  g1.selectAll(".dot")
+      .data(anormalData)
+    .enter().append("circle")
+      .attr("class", "dot anormal")
+      .attr("r", 3)
+      .attr("cx", function(d) { return x(d[xCol]); })
+      .attr("cy", function(d) { return y(d[yCol]); })
+      .style("fill", "red");
+}
+
+
 
 function data_loaded() {
     windTurbineData = getWindTurbineData("R80790-10", dataset);
@@ -218,6 +322,7 @@ function data_loaded() {
     drawParaCoordGraph()
     svg.selectAll(".tick text")
       .call(wrap, 8);
+    draw_scatters();
 }
 
 function wrap(text, width) {
@@ -259,4 +364,4 @@ function brushed() {
 
 // Script executed when the script is launched
 
-loadPark('parc4');
+loadParks('parc4');
