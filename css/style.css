@@ -2,7 +2,7 @@ body {
   font-family: "Helvetica Neue", Helvetica;
   font-weight: 300;
   text-shadow: 0 1px 0 #fff;
-  overflow: scroll;
+  overflow: visible;
 }
 
 #header, #footer {
@@ -42,7 +42,17 @@ body {
   float: right;
 }
 
+/*#container {
+  height: 20px;
+  width: 1200px;
+}
+
+#range-label {
+  text-align: center;
+}*/
+
 .calendar-heatmap {
+  overflow: visible;
   z-index: 1;
   display: flex;
   margin-left: 250px;
@@ -65,6 +75,7 @@ body {
   stroke-width: 1;
   stroke: rgb(100, 100, 100);
 }
+
 .calendar-heatmap .button text {
   stroke-width: 1;
   text-anchor: middle;
@@ -87,7 +98,7 @@ body {
 
 .calendar-heatmap .drag {
   stroke: gray;
-  stroke-dasharray : 4px;
+  stroke-dasharray: 4px;
   stroke-opacity: 0.5;
   fill: transparent;
 }
