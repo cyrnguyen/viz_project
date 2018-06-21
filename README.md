@@ -10,6 +10,7 @@
 
 * Brush & Zoom :  
     https://bl.ocks.org/mbostock/34f08d5e11952a80609169b7917d4172
+    http://square.github.io/crossfilter/
 * Zoomable Area :  
     https://bl.ocks.org/mbostock/4015254
 * Draggable Text :  
@@ -23,3 +24,5 @@
 * Parallel Coordinates :  
     https://syntagmatic.github.io/parallel-coordinates/  
     https://bl.ocks.org/jasondavies/1341281
+* Scattter plot :
+    https://bl.ocks.org/mbostock/3887118
