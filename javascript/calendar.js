@@ -166,25 +166,6 @@ function draw() {
   var set_datetimes = d3.map(nested_index, (d) => d.datetime).keys()
     .sort(function (x, y) { return d3.ascending(+x, +y); })
 
-  // set_datetimes_to_array = [] ;
-
-  // if (overview == 'day') {
-  //   set_datetimes.forEach(function(e) {
-  //     set_datetimes_to_array.push(e.length == 4 ? +e.substr(2) : +e.substr(1));
-  //   });
-  // }
-
-  // // Define slider
-  // var min_datetimes = set_datetimes[0];
-  // var max_datetimes = set_datetimes[set_datetimes.length - 1];
-  // var slider = createD3RangeSlider(min_datetimes, max_datetimes, "#container");
-
-  // // Access the start and end values of the slider
-  // slider.onChange(function(newRange){
-  //   var start_range = newRange.begin;
-  //   var end_range = newRange.end;
-  // });
-
   rect = heatmap.selectAll('rect')
     .data(nested_index)
     .enter()
@@ -212,7 +193,11 @@ function draw() {
             return d.name + ', on ' + text_month + ' ' + text_day + '\nindex : ' + text_index;
           } else if (overview == 'day') {
             text_month = getMonth(data[0].datetime);
-            text_days = selected.datetime.toString();
+            if (selected.datetime.length > 1) {
+              text_days = i < set_names.length * 24 ? selected.datetime[0].toString() : selected.datetime[1].toString();
+            } else {
+              text_days = selected.datetime.toString();
+            }
             text_hour = d.datetime.toString().slice(-2) + ':00';
             text_index = d.index.toFixed(3)
             return d.name + ', on ' + text_month + ' ' + text_days + ' at ' + text_hour + '\nindex : ' + text_index;
@@ -282,6 +267,7 @@ function draw() {
         return set_datetimes[i];
       else if (overview == 'day') {
         if (i < set_datetimes.length) {
+          // if set_datetimes = 'ddhh' then hour = substr(2), else if set_datetimes = 'dhh' then hour = substr(1)
           var label_hours = set_datetimes[i].length == 4 ? set_datetimes[i].substr(2) : set_datetimes[i].substr(1);
           return label_hours + ':00'
         }
