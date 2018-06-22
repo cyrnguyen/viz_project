@@ -5,6 +5,8 @@ body {
   overflow: visible;
 }
 
+/* legends */
+
 #header, #footer {
   position: absolute;
   z-index: 1;
@@ -42,14 +44,7 @@ body {
   float: right;
 }
 
-/*#container {
-  height: 20px;
-  width: 1200px;
-}
-
-#range-label {
-  text-align: center;
-}*/
+/* heatmap */
 
 .calendar-heatmap {
   overflow: visible;
@@ -103,6 +98,8 @@ body {
   fill: transparent;
 }
 
+/* tooltip */
+
 #tooltip {
   display: flex;
   position: absolute;
@@ -146,15 +143,7 @@ body {
   fill: black;
 }
 
-/*.brush .selection {
-  fill-opa  city: .3;
-  stroke: #fff;
-  shape-rendering: crispEdges;
-}
-
-.brush .selection,.brush .handle {
-  width: 16px;
-}*/
+/* focus on wind turbine */
 
 #focus {
   position: absolute;
