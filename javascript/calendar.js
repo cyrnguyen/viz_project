@@ -349,9 +349,8 @@ function draw() {
             if ('parc' in selected) {
               json = selected.parc;
               loadParks(json, data_loaded);
-            }
-            else {
-              parkLoaded(json);
+            } else {
+              loadParks(json, data_loaded);
             }
           }
         }
