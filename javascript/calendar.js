@@ -65,7 +65,7 @@ function drawButton() {
           history.pop();
           overview = history[history.length - 1];
           json = ['parcs'];
-          parkLoaded(json);
+          loadParks(json, data_loaded);
         } else {
           delete selected.parc;
           json = ['parcs'];
@@ -87,7 +87,7 @@ function drawButton() {
             json = ['parcs'];
             loadParks(json, data_loaded);
           } else {
-            parkLoaded(selected.parc);
+            loadParks(selected.parc, data_loaded);
           }
         }
       }
@@ -353,6 +353,10 @@ function draw() {
               loadParks(json, data_loaded);
             }
           }
+        } else {
+          overview = 'day';
+          selected['datetime'] = [+set_datetimes[i]];
+          loadParks(json, data_loaded);
         }
       }
     })
@@ -409,7 +413,12 @@ function draw() {
         } else if ('parc' in selected && selected.parc.length > 0) {
           if ('datetime' in selected) { overview = 'day'; }
           json = selected['parc'];
-          loadParks(selected.parc, data_loaded);
+          loadParks(json, data_loaded);
+        } else {
+          selected['parc'] = [set_names[i]];
+          json = selected.parc;
+          console.log('names : ', json);
+          loadParks(json, data_loaded);
         }
       }
     })
