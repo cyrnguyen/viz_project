@@ -172,6 +172,7 @@ function draw() {
       selected.datetime = selected.datetime.sort(function (x, y) { return d3.ascending(+x, +y); });
   }
 
+  // Define heatmap rectangles
   rect = heatmap.selectAll('rect')
     .data(nested_index)
     .enter()
@@ -214,7 +215,11 @@ function draw() {
           } else if (overview == 'day') {
             text_month = getMonth(data[0].datetime);
             if (selected.datetime.length > 1) {
-              text_days = i < set_names.length * 24 ? selected.datetime[0].toString() : selected.datetime[1].toString();
+              for (j = 0; j < set_names.length; j++) {
+                if ((i >= set_names.length * 24 * j) && (i < set_names.length * 24 * (j + 1))) {
+                  text_days = selected.datetime[j].toString();
+                }
+              } 
             } else {
               text_days = selected.datetime.toString();
             }
@@ -289,7 +294,7 @@ function draw() {
       else if (overview == 'day') {
         if (selected.datetime.length < 2) {
           if (i < set_datetimes.length) {
-            // if set_datetimes = 'ddhh' then hour = substr(2), else if set_datetimes = 'dhh' then hour = substr(1)
+            // if set_datetimes = 'DayDayHourHour' then hour = substr(2), else if set_datetimes = 'DayHourHour' then hour = substr(1)
             var label_hours = set_datetimes[i].length == 4 ? set_datetimes[i].substr(2) : set_datetimes[i].substr(1);
             return label_hours + ':00'
           }
@@ -328,19 +333,25 @@ function draw() {
       if (overview == 'month') {
         // multi selection
         if (d3.event.shiftKey) {
-          if (!d3.select(this).classed("selected")){
-            d3.select(this).classed("selected", true)
-            d3.select(this).transition().attr('font-weight', 'bold').attr('fill', 'tomato');
+          if (!d3.select(this).classed("selected")) {
             if (!('datetime' in selected)) {
               selected['datetime'] = [+set_datetimes[i]];
+              d3.select(this).classed("selected", true)
+              d3.select(this).transition().attr('font-weight', 'bold').attr('fill', 'tomato');
             } else if (!(selected.datetime.includes(set_datetimes[i]))) {
-              selected['datetime'].push(+set_datetimes[i]);
+              // selection of contiguous datetime values 
+              var limits = d3.extent(selected.datetime);
+              if ((set_datetimes[i] - limits[1] == 1) || (limits[0] - set_datetimes[i] == 1)) {
+                selected['datetime'].push(+set_datetimes[i]);              
+                d3.select(this).classed("selected", true)
+                d3.select(this).transition().attr('font-weight', 'bold').attr('fill', 'tomato');
+              }
             }
           } else {
-            d3.select(this).classed("selected", false);
-            d3.select(this).transition().attr('font-weight', 'none').attr('fill', 'black');
-            var idx = selected.datetime.indexOf(set_datetimes[i]);
             // unselect datetime if double click on label
+            d3.select(this).classed("selected", false);
+            d3.select(this).transition().attr('font-weight', 'normal').attr('fill', 'black');
+            var idx = selected.datetime.indexOf(set_datetimes[i]);
             selected.datetime.splice(idx, 1);
           }
         } else if ('datetime' in selected) {
