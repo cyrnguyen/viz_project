@@ -26,13 +26,6 @@ var healthCurveXAxis = d3.axisBottom(healthCurveX)
     .tickFormat(d3.timeFormat("%Y-%m-%d %H:%M")),
     healthCurveYAxis = d3.axisLeft(healthCurveY);
 
-// var area = d3.area()
-//     .curve(d3.curveMonotoneX)
-//     .defined(function(d) {return d.index  < 2.0})
-//     .x(function(d) { return healthCurveX(d.datetime); })
-//     .y0(healthCurveH)
-//     .y1(function(d) { return healthCurveY(d.index); });
-
 var health_curve = focusSvg.append("g");
 focusSvg.append("g")
   .attr("transform", "translate(" + focusMargin.left + "," + focusMargin.top + ")")
@@ -43,10 +36,6 @@ focusSvg.append("g")
   .attr("x", "50%")
   .attr("y", - focusTitleH)
   .text("Indicateur de santé");
-
-var brush = d3.brushX()
-    .extent([[0, 0], [diagramsW, healthCurveH]])
-    .on("brush end", brushed);
 
 function initHealthCurve() {
   health_curve.selectAll("*").remove();
@@ -81,29 +70,6 @@ function draw_health_curve(domain_dt) {
           // if (idx == 2) { return '#F5F5F5'; }
           return quantizeScale(idx);
         });
-
-
-    
-
-    // health_curve.append("path")
-    //   .datum(windTurbineData)
-    //   .attr("class", "area")
-    //   .attr("d", area);
-
-    // health_curve.append("g")
-    //   .attr("class", "axis axis--x")
-    //   .attr("transform", "translate(0," + healthCurveH + ")")
-    //   .call(healthCurveXAxis);
-
-    // health_curve.append("g")
-    //   .attr("class", "axis axis--y")
-    //   .call(healthCurveYAxis);
-
-
-    // health_curve.append("g")
-    //   .attr("class", "brush")
-    //   .call(brush)
-    //   .call(brush.move, healthCurveX.range());
 }
 
 
@@ -217,35 +183,8 @@ function drawParaCoordGraph(domain_dt) {
       .append("text")
         .style("text-anchor", "middle")
         .attr("y", -9)
-        .attr("dy", ".3em")
         .attr("fill", "black")
         .text(function(d) { return d; });
-
-    // Add and store a brush for each axis.
-    // g.append("g")
-    //   .attr("class", "brush")
-    //   .each(function(d) {
-    //     d3.select(this).call(brushYtmp.extent([[0, 0], [16, paraCoordGraphH]]).on("start", brushstart).on("brush end", brush))
-    //   })
-
-    // g.each(function(d) {
-    //   d3.select(this).append("g")
-    //   .attr("class", "brush")
-    //   .call(d3.brushY().extent([[0, 0], [16, paraCoordGraphH]]).on("end", brush).on("start", brushstart)); //    paraCoordY[d].brush = 
-    //   });
-    // .selectAll("rect")
-    //   .attr("x", -8)
-    //   .attr("width", 16)
-
-    // g.append("g")
-    //   .attr("class", "brush")
-    //   .call(d3.brushY().extent([[0, 0], [16, paraCoordGraphH]]).on("end", brush).on("start", brushstart));
-
-    // for (let group of g._groups) {
-    //   group.append("g")
-    //     .attr("class", "brush")
-    //     .call(d3.brushY().extent([[0, 0], [16, paraCoordGraphH]]).on("end", brush).on("start", brushstart));
-    // }
 }
 
 function paraCoordPosition(d) {
@@ -260,23 +199,6 @@ function transition(g) {
 // Returns the path for a given data point.
 function path(d) {
   return paraCoordLine(dimensions.map(function(p) { return [paraCoordPosition(p), paraCoordY[p](d[p])]; }));
-}
-
-function brushstart() {
-  console.log("Brushing paraCoord start");
-  d3.event.sourceEvent.stopPropagation();
-}
-
-// Handles a brush event, toggling the display of foreground lines.
-function brush() {
-  console.log("Brushing paraCoord")
-  var actives = dimensions.filter(function(p) { return !paraCoordY[p].brush.empty(); }),
-      extents = actives.map(function(p) { return paraCoordY[p].brush.extent(); });
-  foreground.style("display", function(d) {
-    return actives.every(function(p, i) {
-      return extents[i][0] <= d[p] && d[p] <= extents[i][1];
-    }) ? null : "none";
-  });
 }
 
 
@@ -420,18 +342,6 @@ function wrap(text, width) {
       }
     }
     });
-}
-
-function brushed() {
-  // if (d3.event.sourceEvent && d3.event.sourceEvent.type === "zoom") return; // ignore brush-by-zoom
-  // var s = d3.event.selection || x2.range();
-  // x.domain(s.map(x2.invert, x2));
-  // focus.select(".area").attr("d", area);
-  // focus.select(".axis--x").call(healthCurveXAxis);
-  // focusSvg.select(".zoom").call(zoom.transform, d3.zoomIdentity
-  //     .scale(width / (s[1] - s[0]))
-  //     .translate(-s[0], 0));
-    console.log("brushing")
 }
 
 function toggleFocus() {
