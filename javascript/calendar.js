@@ -419,7 +419,8 @@ function draw() {
         }
       } else {
         if (!set_names[i].startsWith("parc")) {
-          let begin_dt, end_dt;
+          let begin_dt = new Date(2018, 4, 1)
+           end_dt = new Date(2018, 5, 1);
           if ('datetime' in selected) {
             let selected_dts = getDtFromSelectedDays(selected.datetime);
             begin_dt = selected_dts[0];

@@ -22,21 +22,15 @@ var focusSvg = d3.select("[role='focus']")
 var healthCurveX = d3.scaleTime().range([0, diagramsW]),
     healthCurveY = d3.scaleLinear().range([healthCurveH, 0]);
 var healthCurveXAxis = d3.axisBottom(healthCurveX)
-    .tickFormat(d3.timeFormat("%Y %m-%d")),
+    .tickFormat(d3.timeFormat("%Y %m-%d %H:%M")),
     healthCurveYAxis = d3.axisLeft(healthCurveY);
 
-var area = d3.area()
-    .curve(d3.curveMonotoneX)
-    .defined(function(d) {return d.index  < 2.0})
-    .x(function(d) { return healthCurveX(d.datetime); })
-    .y0(healthCurveH)
-    .y1(function(d) { return healthCurveY(d.index); });
-
-focusSvg.append("defs").append("clipPath")
-    .attr("id", "clip")
-  .append("rect")
-    .attr("width", diagramsW)
-    .attr("height", healthCurveH);
+// var area = d3.area()
+//     .curve(d3.curveMonotoneX)
+//     .defined(function(d) {return d.index  < 2.0})
+//     .x(function(d) { return healthCurveX(d.datetime); })
+//     .y0(healthCurveH)
+//     .y1(function(d) { return healthCurveY(d.index); });
 
 var health_curve = focusSvg.append("g");
 
@@ -50,30 +44,56 @@ function initHealthCurve() {
     .attr("transform", "translate(" + focusMargin.left + "," + focusMargin.top + ")");
 }
 
-function draw_health_curve() {
-    initHealthCurve();
-    healthCurveX.domain(d3.extent(windTurbineData, function(d) { return d.datetime; }));
-    healthCurveY.domain([0, 1]);
+function draw_health_curve(domain_dt) {
+  initHealthCurve();
+  healthCurveX.domain(domain_dt);
+  healthCurveY.domain([0, 1]);
+  health_curve.append("g")
+    .attr("class", "x axis")
+    .attr("transform", "translate(0," + healthCurveH + ")")
+    .call(healthCurveXAxis);
 
-    health_curve.append("path")
-      .datum(windTurbineData)
-      .attr("class", "area")
-      .attr("d", area);
+  health_curve.append("g")
+    .attr("class", "y axis")
+    .call(healthCurveYAxis);
 
-    health_curve.append("g")
-      .attr("class", "axis axis--x")
-      .attr("transform", "translate(0," + healthCurveH + ")")
-      .call(healthCurveXAxis);
+  health_curve.selectAll(".dot")
+      .data(windTurbineData)
+    .enter().append("circle")
+      .attr("class", "dot normal")
+      .attr("r", 2)
+      .attr("cx", function(d) { return healthCurveX(d.datetime); })
+      .attr("cy", function(d) { return healthCurveY(d.index); })
+      .attr("cy", function(d) { return healthCurveY(d.index); })
+      .style("fill", function (d) {
+          idx = d.index
+          // whitesmoke color for missing values (index = 2 if NA)
+          // if (idx == 2) { return '#F5F5F5'; }
+          return quantizeScale(idx);
+        });
 
-    health_curve.append("g")
-      .attr("class", "axis axis--y")
-      .call(healthCurveYAxis);
+
+    
+
+    // health_curve.append("path")
+    //   .datum(windTurbineData)
+    //   .attr("class", "area")
+    //   .attr("d", area);
+
+    // health_curve.append("g")
+    //   .attr("class", "axis axis--x")
+    //   .attr("transform", "translate(0," + healthCurveH + ")")
+    //   .call(healthCurveXAxis);
+
+    // health_curve.append("g")
+    //   .attr("class", "axis axis--y")
+    //   .call(healthCurveYAxis);
 
 
-    health_curve.append("g")
-      .attr("class", "brush")
-      .call(brush)
-      .call(brush.move, healthCurveX.range());
+    // health_curve.append("g")
+    //   .attr("class", "brush")
+    //   .call(brush)
+    //   .call(brush.move, healthCurveX.range());
 }
 
 
@@ -89,10 +109,10 @@ var paraCoordLine = d3.line(),
 
 var paraCoordGraph = focusSvg.append("g");
 
-function createParaCoordScaleAndAxis(d) {
+function createParaCoordScaleAndAxis(d, domain_dt) {
     if (d == "datetime") {
         paraCoordY[d] = d3.scaleTime()
-            .domain(d3.extent(windTurbineData, function(p) { return +p[d]; }))
+            .domain(domain_dt)
             .range([paraCoordGraphH, 0]);
         paraCoordAxis[d] = d3.axisLeft()
             .tickFormat(d3.timeFormat("%Y-%m-%d"));
@@ -110,14 +130,14 @@ function initParaCoordGraph() {
     .attr("transform", "translate(" + focusMargin.left + "," + (2 * focusMargin.top + healthCurveH + focusMargin.bottom) + ")");
 }
 
-function drawParaCoordGraph() {
+function drawParaCoordGraph(domain_dt) {
     initParaCoordGraph();
     dimensions = getWindTurbineColumns().filter(
         function(d) {
             return d != "name" && d != "normal" && d != "index"
         });
     dimensions.filter(function (d) {
-        createParaCoordScaleAndAxis(d);
+        createParaCoordScaleAndAxis(d, domain_dt);
     });
     paraCoordX.domain(dimensions);
 
@@ -325,13 +345,14 @@ function draw_scatter(data, xCol, yCol, element, row, col, anormalData) {
 
 
 
-function focus_data_loaded(turbineName, begin_dt=null, end_dt=null) {
+function focus_data_loaded(turbineName, begin_dt, end_dt) {
     windTurbineData = getWindTurbineData(turbineName, dataset, begin_dt, end_dt);
+    domain_dt = [begin_dt, end_dt]
     for (let i = 0; i < 10; i++) {
         console.log(windTurbineData[i]);
     }
-    draw_health_curve()
-    drawParaCoordGraph()
+    draw_health_curve(domain_dt)
+    drawParaCoordGraph(domain_dt)
     focusSvg.selectAll(".tick text")
       .call(wrap, 8);
     draw_scatters();

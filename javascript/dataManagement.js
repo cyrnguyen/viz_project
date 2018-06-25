@@ -87,7 +87,10 @@ function loadParks(names, callback) {
 function getWindTurbineData(name, parkData, beginDate=null, endDate=null) {
     return parkData.filter(function (d) {
         // && d.normal == 0.0
-        return d.name == name && (beginDate === null || d.datetime >= beginDate) && (endDate === null || d.datetime < endDate);
+        // Return only the data where the health index is defined (!= 2.0) or the abnormal data (that can be close to a data gap and where the health index is not defined)
+        return d.name == name && (beginDate === null || d.datetime >= beginDate)
+          && (endDate === null || d.datetime < endDate)
+          && (d.index != 2.0 || d.normal == 0);
     })
 }
 
