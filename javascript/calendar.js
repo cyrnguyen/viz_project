@@ -7,6 +7,8 @@ const item_size = 34;
 const cell_size = item_size - 4;
 
 // Declare d3.time formats
+// const getDate = d3.timeFormat('%Y%m%d');
+// const getDateTime = d3.timeFormat('%Y%m%d%H');
 const getDate = d3.timeFormat('%d%H');
 const getYear = d3.timeFormat('%Y');
 const getMonth = d3.timeFormat('%B');
@@ -434,8 +436,8 @@ function draw() {
           loadParks(json, data_loaded);
         } else {
           selected['parc'] = [set_names[i]];
+          if ('datetime' in selected) { overview = 'day'; }
           json = selected.parc;
-          console.log('names : ', json);
           loadParks(json, data_loaded);
         }
       }
