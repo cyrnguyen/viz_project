@@ -419,7 +419,13 @@ function draw() {
         }
       } else {
         if (!set_names[i].startsWith("parc")) {
-          focus_data_loaded(set_names[i]);
+          let begin_dt, end_dt;
+          if ('datetime' in selected) {
+            let selected_dts = getDtFromSelectedDays(selected.datetime);
+            begin_dt = selected_dts[0];
+            end_dt = selected_dts[1];
+          }          
+          focus_data_loaded(set_names[i], begin_dt, end_dt);
           toggleFocus();
         } else if ('parc' in selected && selected.parc.length > 0) {
           if ('datetime' in selected) { overview = 'day'; }

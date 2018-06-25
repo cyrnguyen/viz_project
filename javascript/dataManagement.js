@@ -84,10 +84,10 @@ function loadParks(names, callback) {
   }
 }
 
-function getWindTurbineData(name, parkData) {
+function getWindTurbineData(name, parkData, beginDate=null, endDate=null) {
     return parkData.filter(function (d) {
         // && d.normal == 0.0
-        return d.name == name;
+        return d.name == name && (beginDate === null || d.datetime >= beginDate) && (endDate === null || d.datetime < endDate);
     })
 }
 
@@ -103,4 +103,11 @@ function getWindTurbineColumns() {
 
 function getScattersToDisplay() {
   return scatters;
+}
+
+function getDtFromSelectedDays(dateTimes) {
+  beginDate = new Date(2018, 4, dateTimes[0], 0, 0, 0);
+  endDate = new Date(2018, 4, dateTimes[dateTimes.length - 1], 0, 0, 0);
+  endDate.setDate(endDate.getDate() + 1)
+  return [beginDate, endDate];
 }

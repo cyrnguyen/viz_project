@@ -133,7 +133,7 @@ function drawParaCoordGraph() {
     foreground = paraCoordGraph.append("g")
         .attr("class", "foreground")
       .selectAll("path")
-        .data(windTurbineData)
+        .data(getAnormalData(windTurbineData))
       .enter().append("path")
         .attr("d", path);
 
@@ -325,8 +325,8 @@ function draw_scatter(data, xCol, yCol, element, row, col, anormalData) {
 
 
 
-function focus_data_loaded(turbineName) {
-    windTurbineData = getWindTurbineData(turbineName, dataset);
+function focus_data_loaded(turbineName, begin_dt=null, end_dt=null) {
+    windTurbineData = getWindTurbineData(turbineName, dataset, begin_dt, end_dt);
     for (let i = 0; i < 10; i++) {
         console.log(windTurbineData[i]);
     }
