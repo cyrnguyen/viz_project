@@ -20,6 +20,14 @@ scatters.push(["Rs", "P"]);
 scatters.push(["Yt", "Dst"]);
 scatters.push(["Yt", "Rbt"]);
 
+var feat_desc = new Map();
+feat_desc.set("Ws", "Vitesse du vent");
+feat_desc.set("P", "Puissance");
+feat_desc.set("Rs", "Vitesse du rotor");
+feat_desc.set("Ba", "Angle des pales");
+feat_desc.set("Yt", "Température de la nacelle");
+feat_desc.set("Dst", "Température de générateur");
+feat_desc.set("Rbt", "Température du rotor");
 
 function parkLoaded(names, callback) {
   if (parksToLoad.size === 0) {

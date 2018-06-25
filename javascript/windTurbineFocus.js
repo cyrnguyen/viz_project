@@ -2,7 +2,8 @@ const w = 1500;
 const healthCurveH = 200;
 const paraCoordGraphH = 600;
 const scatterGraphH = 300;
-const focusMargin = {top: 50, right: 30, bottom: 50, left: 80};
+const focusTitleH = 40;
+const focusMargin = {top: 80, right: 30, bottom: 50, left: 80};
 const scatterGraphW = (w - 3 * (focusMargin.left + focusMargin.right)) / 3
 const scattersGraphH = scatterGraphH + focusMargin.bottom + focusMargin.top + scatterGraphH;
 const h = focusMargin.top + healthCurveH + focusMargin.bottom + focusMargin.top + paraCoordGraphH + focusMargin.bottom + focusMargin.top + scattersGraphH + focusMargin.bottom;
@@ -22,7 +23,7 @@ var focusSvg = d3.select("[role='focus']")
 var healthCurveX = d3.scaleTime().range([0, diagramsW]),
     healthCurveY = d3.scaleLinear().range([healthCurveH, 0]);
 var healthCurveXAxis = d3.axisBottom(healthCurveX)
-    .tickFormat(d3.timeFormat("%Y %m-%d %H:%M")),
+    .tickFormat(d3.timeFormat("%Y-%m-%d %H:%M")),
     healthCurveYAxis = d3.axisLeft(healthCurveY);
 
 // var area = d3.area()
@@ -33,6 +34,15 @@ var healthCurveXAxis = d3.axisBottom(healthCurveX)
 //     .y1(function(d) { return healthCurveY(d.index); });
 
 var health_curve = focusSvg.append("g");
+focusSvg.append("g")
+  .attr("transform", "translate(" + focusMargin.left + "," + focusMargin.top + ")")
+  .append("text")
+  .style("text-anchor", "middle")
+  .attr("class", "graph_title")
+  .attr("fill", "black")
+  .attr("x", "50%")
+  .attr("y", - focusTitleH)
+  .text("Indicateur de santé");
 
 var brush = d3.brushX()
     .extent([[0, 0], [diagramsW, healthCurveH]])
@@ -41,7 +51,7 @@ var brush = d3.brushX()
 function initHealthCurve() {
   health_curve.selectAll("*").remove();
   health_curve.attr("class", "health_curve")
-    .attr("transform", "translate(" + focusMargin.left + "," + focusMargin.top + ")");
+    .attr("transform", "translate(" + focusMargin.left + "," + focusMargin.top + ")")
 }
 
 function draw_health_curve(domain_dt) {
@@ -108,6 +118,15 @@ var paraCoordLine = d3.line(),
     paraCoordForeground;
 
 var paraCoordGraph = focusSvg.append("g");
+focusSvg.append("g")
+  .attr("transform", "translate(" + focusMargin.left + "," + (2 * focusMargin.top + healthCurveH + focusMargin.bottom) + ")")
+  .append("text")
+  .style("text-anchor", "middle")
+  .attr("class", "graph_title")
+  .attr("fill", "black")
+  .attr("x", "50%")
+  .attr("y", - focusTitleH)
+  .text("Graphe en coordonnées parallèles des relevés de capteurs de l'éolienne");
 
 function createParaCoordScaleAndAxis(d, domain_dt) {
     if (d == "datetime") {
@@ -115,7 +134,7 @@ function createParaCoordScaleAndAxis(d, domain_dt) {
             .domain(domain_dt)
             .range([paraCoordGraphH, 0]);
         paraCoordAxis[d] = d3.axisLeft()
-            .tickFormat(d3.timeFormat("%Y-%m-%d"));
+            .tickFormat(d3.timeFormat("%Y-%m-%d %H:%M"));
     } else {
         paraCoordY[d] = d3.scaleLinear()
             .domain(d3.extent(windTurbineData, function(p) { return +p[d]; }))
@@ -198,6 +217,7 @@ function drawParaCoordGraph(domain_dt) {
       .append("text")
         .style("text-anchor", "middle")
         .attr("y", -9)
+        .attr("dy", ".3em")
         .attr("fill", "black")
         .text(function(d) { return d; });
 
@@ -296,8 +316,10 @@ function draw_scatter(data, xCol, yCol, element, row, col, anormalData) {
 
   let leftTranslate = focusMargin.left + col * (focusMargin.left + focusMargin.right + scatterGraphW);
   let topTranslate = focusMargin.top + row * (focusMargin.top + focusMargin.bottom + scatterGraphH);
+
   g = element.append("g")
-    .attr("transform", "translate(" + leftTranslate + "," + topTranslate + ")");
+    .attr("transform", "translate(" + leftTranslate + "," + topTranslate + ")")
+    .attr("width", scatterGraphW);
 
   g.append("g")
       .attr("class", "x axis")
@@ -330,6 +352,24 @@ function draw_scatter(data, xCol, yCol, element, row, col, anormalData) {
       .attr("cy", function(d) { return y(d[yCol]); })
       .style("fill", "steelblue");
 
+  let title1 = feat_desc.get(xCol) + " en fonction de" 
+  let title2 = feat_desc.get(yCol);
+  g.append("g")
+    .append("text")
+    .attr("class", "scatter_title")
+    .attr("fill", "black")
+    .attr("y", - 1.2 * focusTitleH)
+    .attr("dy", ".3em")
+    .append("tspan")
+        .style("text-anchor", "middle")
+        .attr("x", scatterGraphW / 2)
+        .text(title1)
+    .append("tspan")
+        .style("text-anchor", "middle")
+        .attr("x", scatterGraphW / 2)
+        .attr("dy", "1.3em")
+        .text(title2);
+
   g1 = element.append("g")
     .attr("transform", "translate(" + leftTranslate + "," + topTranslate + ")");
 
@@ -353,9 +393,9 @@ function focus_data_loaded(turbineName, begin_dt, end_dt) {
     }
     draw_health_curve(domain_dt)
     drawParaCoordGraph(domain_dt)
+    draw_scatters();
     focusSvg.selectAll(".tick text")
       .call(wrap, 8);
-    draw_scatters();
 }
 
 function wrap(text, width) {

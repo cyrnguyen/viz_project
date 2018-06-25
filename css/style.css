@@ -172,3 +172,9 @@ body {
   font-size: 50px;
   cursor:pointer;
 }
+
+.graph_title, .scatter_title {
+  font-family: sans-serif;
+  font-size: 22px;
+  text-anchor: middle;
+}
